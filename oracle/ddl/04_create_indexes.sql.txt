@@ -1,0 +1,13 @@
+CREATE INDEX idx_claim_member ON claim(member_id);
+CREATE INDEX idx_claim_provider ON claim(provider_id);
+CREATE INDEX idx_claim_service_date ON claim(service_date);
+CREATE INDEX idx_claim_status ON claim(claim_status);
+CREATE INDEX idx_fsd_schedule ON fee_schedule_detail(schedule_id);
+CREATE INDEX idx_fsd_proc_code ON fee_schedule_detail(procedure_code);
+CREATE INDEX idx_claim_detail_claim ON claim_detail(claim_id);
+CREATE INDEX idx_provider_specialty ON provider(specialty);
+
+
+SELECT index_name, table_name, uniqueness, status
+FROM user_indexes
+ORDER BY table_name, index_name;

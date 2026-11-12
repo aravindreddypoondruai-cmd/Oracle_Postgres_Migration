@@ -1,0 +1,97 @@
+CREATE TABLE provider (
+    provider_id NUMBER(10) NOT NULL,
+    provider_code VARCHAR2(20) NOT NULL,
+    provider_name VARCHAR2(150) NOT NULL,
+    specialty VARCHAR2(100),
+    state_code VARCHAR2(2),
+    active_flag CHAR(1) DEFAULT 'Y',
+    created_date DATE DEFAULT SYSDATE,
+    updated_timestamp TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT pk_provider PRIMARY KEY (provider_id),
+    CONSTRAINT uk_provider_code UNIQUE (provider_code),
+    CONSTRAINT ck_provider_active CHECK (active_flag IN ('Y','N'))
+);
+
+CREATE TABLE member (
+    member_id NUMBER(12) NOT NULL,
+    member_number VARCHAR2(30) NOT NULL,
+    first_name VARCHAR2(100),
+    last_name VARCHAR2(100),
+    date_of_birth DATE,
+    state_code VARCHAR2(2),
+    active_flag CHAR(1) DEFAULT 'Y',
+    created_date DATE DEFAULT SYSDATE,
+    CONSTRAINT pk_member PRIMARY KEY (member_id),
+    CONSTRAINT uk_member_number UNIQUE (member_number),
+    CONSTRAINT ck_member_active CHECK (active_flag IN ('Y','N'))
+);
+
+CREATE TABLE fee_schedule (
+    schedule_id NUMBER(10) NOT NULL,
+    schedule_code VARCHAR2(30) NOT NULL,
+    schedule_name VARCHAR2(150),
+    effective_date DATE NOT NULL,
+    termination_date DATE,
+    status VARCHAR2(20) DEFAULT 'ACTIVE',
+    description CLOB,
+    created_date DATE DEFAULT SYSDATE,
+    updated_timestamp TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT pk_fee_schedule PRIMARY KEY (schedule_id),
+    CONSTRAINT uk_fee_schedule_code UNIQUE (schedule_code),
+    CONSTRAINT ck_fee_schedule_status CHECK (status IN ('ACTIVE','INACTIVE'))
+);
+CREATE TABLE fee_schedule_detail (
+    schedule_detail_id NUMBER(12) NOT NULL,
+    schedule_id NUMBER(10) NOT NULL,
+    procedure_code VARCHAR2(20) NOT NULL,
+    modifier_code VARCHAR2(10),
+    allowed_amount NUMBER(12,2) NOT NULL,
+    effective_date DATE NOT NULL,
+    termination_date DATE,
+    CONSTRAINT pk_fee_schedule_detail PRIMARY KEY (schedule_detail_id),
+    CONSTRAINT fk_fsd_schedule FOREIGN KEY (schedule_id)
+        REFERENCES fee_schedule(schedule_id)
+);
+
+CREATE TABLE claim (
+    claim_id NUMBER(15) NOT NULL,
+    claim_number VARCHAR2(30) NOT NULL,
+    member_id NUMBER(12) NOT NULL,
+    provider_id NUMBER(10) NOT NULL,
+    service_date DATE NOT NULL,
+    received_date DATE DEFAULT SYSDATE,
+    claim_status VARCHAR2(20),
+    total_billed NUMBER(14,2),
+    total_allowed NUMBER(14,2),
+    created_timestamp TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT pk_claim PRIMARY KEY (claim_id),
+    CONSTRAINT uk_claim_number UNIQUE (claim_number),
+    CONSTRAINT fk_claim_member FOREIGN KEY (member_id) REFERENCES member(member_id),
+    CONSTRAINT fk_claim_provider FOREIGN KEY (provider_id) REFERENCES provider(provider_id),
+    CONSTRAINT ck_claim_status CHECK
+        (claim_status IN ('NEW','PROCESSING','PAID','DENIED'))
+);
+CREATE TABLE claim_detail (
+    claim_detail_id NUMBER(15) NOT NULL,
+    claim_id NUMBER(15) NOT NULL,
+    line_number NUMBER(5) NOT NULL,
+    procedure_code VARCHAR2(20),
+    modifier_code VARCHAR2(10),
+    billed_amount NUMBER(12,2),
+    allowed_amount NUMBER(12,2),
+    CONSTRAINT pk_claim_detail PRIMARY KEY (claim_detail_id),
+    CONSTRAINT fk_claim_detail_claim FOREIGN KEY (claim_id)
+        REFERENCES claim(claim_id),
+    CONSTRAINT uk_claim_line UNIQUE (claim_id, line_number)
+);
+
+CREATE TABLE migration_audit (
+    audit_id NUMBER(12) NOT NULL,
+    process_name VARCHAR2(100),
+    source_count NUMBER(12),
+    target_count NUMBER(12),
+    status VARCHAR2(20),
+    message VARCHAR2(4000),
+    created_timestamp TIMESTAMP DEFAULT SYSTIMESTAMP,
+    CONSTRAINT pk_migration_audit PRIMARY KEY (audit_id)
+);
