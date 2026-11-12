@@ -1,0 +1,23 @@
+CREATE OR REPLACE VIEW v_active_fee_schedule AS
+SELECT fs.schedule_id, fs.schedule_code, fs.schedule_name,
+       fs.effective_date, fs.termination_date,
+       NVL(fs.termination_date, DATE '2999-12-31') effective_end_date,
+       fs.status, COUNT(fsd.schedule_detail_id) detail_count,
+       NVL(AVG(fsd.allowed_amount),0) average_allowed_amount
+FROM fee_schedule fs
+LEFT JOIN fee_schedule_detail fsd ON fsd.schedule_id=fs.schedule_id
+WHERE fs.status='ACTIVE'
+GROUP BY fs.schedule_id,fs.schedule_code,fs.schedule_name,
+         fs.effective_date,fs.termination_date,fs.status;
+
+CREATE OR REPLACE VIEW v_claim_summary AS
+SELECT c.claim_id,c.claim_number,m.member_number,p.provider_code,
+       p.provider_name,c.service_date,c.claim_status,
+       DECODE(c.claim_status,'NEW','Pending Intake',
+              'PROCESSING','Under Review','PAID','Completed',
+              'DENIED','Rejected','Unknown') status_description,
+       NVL(c.total_billed,0) total_billed,
+       NVL(c.total_allowed,0) total_allowed,
+       NVL(c.total_billed,0)-NVL(c.total_allowed,0) adjustment_amount
+FROM claim c JOIN member m ON m.member_id=c.member_id
+JOIN provider p ON p.provider_id=c.provider_id;

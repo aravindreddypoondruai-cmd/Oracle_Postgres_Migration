@@ -1,0 +1,87 @@
+CREATE OR REPLACE PROCEDURE pr_recalculate_claim
+(
+    p_claim_id IN claim.claim_id%TYPE
+)
+IS
+    l_billed  NUMBER;
+    l_allowed NUMBER;
+    l_message VARCHAR2(4000);
+BEGIN
+
+    SELECT NVL(SUM(billed_amount),0),
+           NVL(SUM(allowed_amount),0)
+    INTO l_billed,
+         l_allowed
+    FROM claim_detail
+    WHERE claim_id = p_claim_id;
+
+    UPDATE claim
+       SET total_billed  = l_billed,
+           total_allowed = l_allowed,
+           claim_status  =
+               CASE
+                   WHEN claim_status = 'NEW'
+                   THEN 'PROCESSING'
+                   ELSE claim_status
+               END
+     WHERE claim_id = p_claim_id;
+
+    IF SQL%ROWCOUNT = 0 THEN
+        RAISE_APPLICATION_ERROR(
+            -20001,
+            'Claim ID ' || p_claim_id || ' does not exist'
+        );
+    END IF;
+
+    l_message := 'Claim recalculated successfully';
+
+    INSERT INTO migration_audit
+    (
+        audit_id,
+        process_name,
+        source_count,
+        target_count,
+        status,
+        message,
+        created_timestamp
+    )
+    VALUES
+    (
+        seq_migration_audit.NEXTVAL,
+        'PR_RECALCULATE_CLAIM',
+        1,
+        1,
+        'SUCCESS',
+        l_message,
+        SYSTIMESTAMP
+    );
+
+EXCEPTION
+    WHEN OTHERS THEN
+
+        l_message := SUBSTR(SQLERRM,1,4000);
+
+        INSERT INTO migration_audit
+        (
+            audit_id,
+            process_name,
+            source_count,
+            target_count,
+            status,
+            message,
+            created_timestamp
+        )
+        VALUES
+        (
+            seq_migration_audit.NEXTVAL,
+            'PR_RECALCULATE_CLAIM',
+            1,
+            0,
+            'FAILED',
+            l_message,
+            SYSTIMESTAMP
+        );
+
+        RAISE;
+END;
+/

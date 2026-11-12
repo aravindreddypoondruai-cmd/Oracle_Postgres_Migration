@@ -1,0 +1,29 @@
+SET SERVEROUTPUT ON;
+INSERT INTO provider(provider_code,provider_name,specialty,state_code)
+VALUES('TEST-P001','Phase 2C Test Provider','Cardiology','TG');
+INSERT INTO member(member_number,first_name,last_name,date_of_birth,state_code)
+VALUES('TEST-M001','Test','Member',DATE '1990-01-01','TG');
+INSERT INTO claim(claim_number,member_id,provider_id,service_date,claim_status)
+SELECT 'TEST-C001',m.member_id,p.provider_id,TRUNC(SYSDATE),'NEW'
+FROM member m CROSS JOIN provider p
+WHERE m.member_number='TEST-M001' AND p.provider_code='TEST-P001';
+INSERT INTO claim_detail(claim_id,line_number,procedure_code,billed_amount,allowed_amount)
+SELECT claim_id,1,'99213',1000,700 FROM claim WHERE claim_number='TEST-C001';
+INSERT INTO claim_detail(claim_id,line_number,procedure_code,billed_amount,allowed_amount)
+SELECT claim_id,2,'93000',500,300 FROM claim WHERE claim_number='TEST-C001';
+DECLARE l_id claim.claim_id%TYPE;
+BEGIN
+ SELECT claim_id INTO l_id FROM claim WHERE claim_number='TEST-C001';
+ pr_recalculate_claim(l_id);
+ DBMS_OUTPUT.PUT_LINE('Balance = '||fn_claim_balance(l_id));
+ DBMS_OUTPUT.PUT_LINE('Label = '||pkg_claim_admin.get_status_label('PROCESSING'));
+END;
+/
+SELECT claim_number,claim_status,total_billed,total_allowed
+FROM claim WHERE claim_number='TEST-C001';
+SELECT claim_number,status_description,adjustment_amount
+FROM v_claim_summary WHERE claim_number='TEST-C001';
+SELECT process_name,status,message FROM migration_audit
+WHERE process_name='PR_RECALCULATE_CLAIM';
+ROLLBACK;
+SELECT COUNT(*) remaining_test_claims FROM claim WHERE claim_number='TEST-C001';

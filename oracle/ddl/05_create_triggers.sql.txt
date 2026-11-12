@@ -1,0 +1,35 @@
+CREATE OR REPLACE TRIGGER trg_provider_bi
+BEFORE INSERT ON provider FOR EACH ROW
+WHEN (NEW.provider_id IS NULL)
+BEGIN :NEW.provider_id := seq_provider.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_member_bi
+BEFORE INSERT ON member FOR EACH ROW
+WHEN (NEW.member_id IS NULL)
+BEGIN :NEW.member_id := seq_member.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_fee_schedule_bi
+BEFORE INSERT ON fee_schedule FOR EACH ROW
+WHEN (NEW.schedule_id IS NULL)
+BEGIN :NEW.schedule_id := seq_fee_schedule.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_fee_schedule_detail_bi
+BEFORE INSERT ON fee_schedule_detail FOR EACH ROW
+WHEN (NEW.schedule_detail_id IS NULL)
+BEGIN :NEW.schedule_detail_id := seq_fee_schedule_detail.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_claim_bi
+BEFORE INSERT ON claim FOR EACH ROW
+WHEN (NEW.claim_id IS NULL)
+BEGIN :NEW.claim_id := seq_claim.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_claim_detail_bi
+BEFORE INSERT ON claim_detail FOR EACH ROW
+WHEN (NEW.claim_detail_id IS NULL)
+BEGIN :NEW.claim_detail_id := seq_claim_detail.NEXTVAL; END;
+/
+CREATE OR REPLACE TRIGGER trg_migration_audit_bi
+BEFORE INSERT ON migration_audit FOR EACH ROW
+WHEN (NEW.audit_id IS NULL)
+BEGIN :NEW.audit_id := seq_migration_audit.NEXTVAL; END;
+/

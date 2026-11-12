@@ -1,0 +1,10 @@
+CREATE OR REPLACE FUNCTION fn_claim_balance(
+ p_claim_id IN claim.claim_id%TYPE) RETURN NUMBER IS
+ l_balance NUMBER(14,2);
+BEGIN
+ SELECT NVL(total_billed,0)-NVL(total_allowed,0)
+ INTO l_balance FROM claim WHERE claim_id=p_claim_id;
+ RETURN l_balance;
+EXCEPTION WHEN NO_DATA_FOUND THEN RETURN NULL;
+END fn_claim_balance;
+/

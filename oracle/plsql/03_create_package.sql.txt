@@ -1,0 +1,127 @@
+CREATE OR REPLACE PACKAGE BODY pkg_claim_admin
+AS
+
+    FUNCTION get_status_label
+    (
+        p_status IN claim.claim_status%TYPE
+    )
+    RETURN VARCHAR2
+    IS
+    BEGIN
+        CASE p_status
+            WHEN 'NEW' THEN
+                RETURN 'Pending Intake';
+
+            WHEN 'PROCESSING' THEN
+                RETURN 'Under Review';
+
+            WHEN 'PAID' THEN
+                RETURN 'Completed';
+
+            WHEN 'DENIED' THEN
+                RETURN 'Rejected';
+
+            ELSE
+                RETURN 'Unknown';
+        END CASE;
+    END get_status_label;
+
+
+    PROCEDURE upsert_audit
+    (
+        p_process_name IN migration_audit.process_name%TYPE,
+        p_source_count IN migration_audit.source_count%TYPE,
+        p_target_count IN migration_audit.target_count%TYPE,
+        p_status       IN migration_audit.status%TYPE,
+        p_message      IN migration_audit.message%TYPE
+    )
+    IS
+    BEGIN
+
+        MERGE INTO migration_audit a
+        USING (
+            SELECT p_process_name process_name
+            FROM dual
+        ) s
+        ON (
+            a.process_name = s.process_name
+            AND TRUNC(a.created_timestamp) = TRUNC(SYSDATE)
+        )
+
+        WHEN MATCHED THEN
+            UPDATE SET
+                a.source_count      = p_source_count,
+                a.target_count      = p_target_count,
+                a.status            = p_status,
+                a.message           = p_message,
+                a.created_timestamp = SYSTIMESTAMP
+
+        WHEN NOT MATCHED THEN
+            INSERT
+            (
+                audit_id,
+                process_name,
+                source_count,
+                target_count,
+                status,
+                message,
+                created_timestamp
+            )
+            VALUES
+            (
+                seq_migration_audit.NEXTVAL,
+                p_process_name,
+                p_source_count,
+                p_target_count,
+                p_status,
+                p_message,
+                SYSTIMESTAMP
+            );
+
+    END upsert_audit;
+
+
+    PROCEDURE recalculate_open_claims
+    IS
+        CURSOR c_claims IS
+            SELECT claim_id
+            FROM claim
+            WHERE claim_status IN ('NEW','PROCESSING');
+
+        l_count NUMBER := 0;
+
+    BEGIN
+
+        FOR r IN c_claims LOOP
+
+            pr_recalculate_claim(r.claim_id);
+
+            l_count := l_count + 1;
+
+        END LOOP;
+
+        upsert_audit(
+            'RECALCULATE_OPEN_CLAIMS',
+            l_count,
+            l_count,
+            'SUCCESS',
+            'Open claims processed successfully'
+        );
+
+    EXCEPTION
+        WHEN OTHERS THEN
+
+            upsert_audit(
+                'RECALCULATE_OPEN_CLAIMS',
+                l_count,
+                0,
+                'FAILED',
+                SUBSTR(SQLERRM,1,4000)
+            );
+
+            RAISE;
+
+    END recalculate_open_claims;
+
+END pkg_claim_admin;
+/

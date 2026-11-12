@@ -1,0 +1,14 @@
+SELECT object_type,object_name,status
+FROM user_objects
+WHERE object_name IN(
+ 'TRG_PROVIDER_BI','TRG_MEMBER_BI','TRG_FEE_SCHEDULE_BI',
+ 'TRG_FEE_SCHEDULE_DETAIL_BI','TRG_CLAIM_BI','TRG_CLAIM_DETAIL_BI',
+ 'TRG_MIGRATION_AUDIT_BI','V_ACTIVE_FEE_SCHEDULE','V_CLAIM_SUMMARY',
+ 'FN_CLAIM_BALANCE','PR_RECALCULATE_CLAIM','PKG_CLAIM_ADMIN')
+ORDER BY object_type,object_name;
+
+SELECT name,type,line,position,text
+FROM user_errors ORDER BY name,sequence;
+
+SELECT trigger_name,table_name,status
+FROM user_triggers ORDER BY trigger_name;
