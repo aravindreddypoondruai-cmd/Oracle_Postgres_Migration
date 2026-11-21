@@ -1,0 +1,47 @@
+name: miglab
+ 
+services:
+  oracle-source:
+    image: container-registry.oracle.com/database/free:latest
+    container_name: oracle-source
+    ports:
+      - "1521:1521"
+    environment:
+      ORACLE_PWD: ${ORACLE_PWD}
+    volumes:
+      - oracle-data:/opt/oracle/oradata
+    networks:
+      - miglab-net
+ 
+  postgres-target:
+    image: postgres:18
+    container_name: postgres-target
+    command:
+      - postgres
+      - -c
+      - shared_preload_libraries=pg_stat_statements
+      - -c
+      - track_io_timing=on
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres-data:/var/lib/postgresql
+    networks:
+      - miglab-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+ 
+networks:
+  miglab-net:
+    external: true
+ 
+volumes:
+  oracle-data:
+    external: true
+  postgres-data:
+    external: true
