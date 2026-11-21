@@ -1,0 +1,27 @@
+INSERT /*+ APPEND */ INTO fee_schedule_detail
+    (schedule_id, procedure_code, modifier_code, allowed_amount,
+     effective_date, termination_date)
+SELECT
+    fs.schedule_id,
+    'PROC' || LPAD(MOD((fs.schedule_rn - 1) * 50 + d.detail_no, 5000), 5, '0'),
+    CASE MOD(d.detail_no, 5)
+        WHEN 0 THEN '25' WHEN 1 THEN '26' WHEN 2 THEN '59' WHEN 3 THEN 'TC'
+        ELSE NULL
+    END,
+    ROUND(50 + MOD(fs.schedule_rn * 17 + d.detail_no * 13, 4950)
+             + MOD(d.detail_no, 100) / 100, 2),
+    fs.effective_date,
+    fs.termination_date
+FROM (SELECT schedule_id, effective_date, termination_date,
+             ROW_NUMBER() OVER (ORDER BY schedule_id) AS schedule_rn
+      FROM fee_schedule) fs
+CROSS JOIN (SELECT LEVEL AS detail_no FROM dual CONNECT BY LEVEL <= 50) d;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS fee_schedule_detail_count FROM fee_schedule_detail;
+ 
+SELECT MIN(cnt) AS minimum_details, MAX(cnt) AS maximum_details,
+       AVG(cnt) AS average_details
+FROM (SELECT schedule_id, COUNT(*) AS cnt
+      FROM fee_schedule_detail GROUP BY schedule_id);

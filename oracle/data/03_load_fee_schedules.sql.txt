@@ -1,0 +1,24 @@
+INSERT /*+ APPEND */ INTO fee_schedule
+    (schedule_code, schedule_name, effective_date, termination_date,
+     status, description, created_date, updated_timestamp)
+SELECT
+    'FS' || LPAD(LEVEL, 5, '0'),
+    'Synthetic Fee Schedule ' || LPAD(LEVEL, 5, '0'),
+    ADD_MONTHS(DATE '2022-01-01', MOD(LEVEL, 36)),
+    CASE WHEN MOD(LEVEL, 10) = 0
+         THEN ADD_MONTHS(DATE '2022-01-01', MOD(LEVEL, 36) + 12)
+    END,
+    CASE WHEN MOD(LEVEL, 10) = 0 THEN 'INACTIVE' ELSE 'ACTIVE' END,
+    TO_CLOB('Synthetic fee schedule generated for Oracle to PostgreSQL '
+         || 'migration capstone. Schedule number ' || TO_CHAR(LEVEL)),
+    TRUNC(SYSDATE) - MOD(LEVEL, 500),
+    SYSTIMESTAMP
+FROM dual
+CONNECT BY LEVEL <= 500;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS fee_schedule_count FROM fee_schedule;
+ 
+SELECT status, COUNT(*) AS schedule_count
+FROM fee_schedule GROUP BY status ORDER BY status;

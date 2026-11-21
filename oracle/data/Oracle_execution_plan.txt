@@ -1,0 +1,14 @@
+EXPLAIN PLAN FOR
+SELECT p.provider_id, p.provider_name,
+       COUNT(*)             AS claim_count,
+       SUM(c.total_billed)  AS total_billed,
+       SUM(c.total_allowed) AS total_allowed
+FROM provider p
+JOIN claim c ON c.provider_id = p.provider_id
+WHERE c.service_date >= ADD_MONTHS(TRUNC(SYSDATE), -12)
+  AND c.claim_status = 'PAID'
+GROUP BY p.provider_id, p.provider_name
+ORDER BY total_billed DESC;
+ 
+SELECT *
+FROM TABLE(DBMS_XPLAN.DISPLAY(NULL, NULL, 'BASIC +PREDICATE +COST +BYTES'));

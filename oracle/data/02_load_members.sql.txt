@@ -1,0 +1,26 @@
+INSERT /*+ APPEND */ INTO member
+    (member_number, first_name, last_name, date_of_birth,
+     state_code, active_flag, created_date)
+SELECT
+    'MBR' || LPAD(LEVEL, 9, '0'),
+    'FirstName' || LPAD(MOD(LEVEL, 1000), 4, '0'),
+    'LastName'  || LPAD(MOD(LEVEL, 2000), 4, '0'),
+    DATE '1945-01-01' + MOD(LEVEL * 37, 25550),
+    CASE MOD(LEVEL, 8)
+        WHEN 0 THEN 'TG' WHEN 1 THEN 'KA' WHEN 2 THEN 'MH' WHEN 3 THEN 'TN'
+        WHEN 4 THEN 'AP' WHEN 5 THEN 'DL' WHEN 6 THEN 'GJ' ELSE 'KL'
+    END,
+    CASE WHEN MOD(LEVEL, 25) = 0 THEN 'N' ELSE 'Y' END,
+    TRUNC(SYSDATE) - MOD(LEVEL, 1000)
+FROM dual
+CONNECT BY LEVEL <= 10000;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS member_count FROM member;
+ 
+SELECT MIN(date_of_birth) AS earliest_dob,
+       MAX(date_of_birth) AS latest_dob,
+       SUM(CASE WHEN active_flag = 'Y' THEN 1 ELSE 0 END) AS active_members,
+       SUM(CASE WHEN active_flag = 'N' THEN 1 ELSE 0 END) AS inactive_members
+FROM member;

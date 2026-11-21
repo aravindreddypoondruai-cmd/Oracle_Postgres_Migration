@@ -1,0 +1,32 @@
+INSERT /*+ APPEND */ INTO claim
+    (claim_number, member_id, provider_id, service_date, received_date,
+     claim_status, total_billed, total_allowed, created_timestamp)
+WITH member_map AS (
+    SELECT member_id, ROW_NUMBER() OVER (ORDER BY member_id) AS rn FROM member),
+provider_map AS (
+    SELECT provider_id, ROW_NUMBER() OVER (ORDER BY provider_id) AS rn FROM provider),
+claim_generator AS (
+    SELECT LEVEL AS claim_no FROM dual CONNECT BY LEVEL <= 50000)
+SELECT
+    'CLM' || LPAD(c.claim_no, 10, '0'),
+    m.member_id,
+    p.provider_id,
+    TRUNC(SYSDATE) - MOD(c.claim_no * 7, 730),
+    TRUNC(SYSDATE) - MOD(c.claim_no * 7, 730) + MOD(c.claim_no, 10),
+    CASE MOD(c.claim_no, 10)
+        WHEN 0 THEN 'DENIED'
+        WHEN 1 THEN 'NEW'        WHEN 2 THEN 'NEW'
+        WHEN 3 THEN 'PROCESSING' WHEN 4 THEN 'PROCESSING'
+        ELSE 'PAID'
+    END,
+    0, 0, SYSTIMESTAMP
+FROM claim_generator c
+JOIN member_map   m ON m.rn = MOD(c.claim_no - 1, 10000) + 1
+JOIN provider_map p ON p.rn = MOD(c.claim_no * 17 - 1, 1000) + 1;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS claim_count FROM claim;
+ 
+SELECT claim_status, COUNT(*) AS claim_count
+FROM claim GROUP BY claim_status ORDER BY claim_status;

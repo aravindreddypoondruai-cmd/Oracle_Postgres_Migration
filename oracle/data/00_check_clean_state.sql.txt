@@ -1,0 +1,16 @@
+SELECT USER AS current_user,
+       SYS_CONTEXT('USERENV','CON_NAME') AS container_name
+FROM dual;
+ 
+SELECT 'PROVIDER' AS table_name, COUNT(*) AS row_count FROM provider
+UNION ALL SELECT 'MEMBER', COUNT(*) FROM member
+UNION ALL SELECT 'FEE_SCHEDULE', COUNT(*) FROM fee_schedule
+UNION ALL SELECT 'FEE_SCHEDULE_DETAIL', COUNT(*) FROM fee_schedule_detail
+UNION ALL SELECT 'CLAIM', COUNT(*) FROM claim
+UNION ALL SELECT 'CLAIM_DETAIL', COUNT(*) FROM claim_detail
+UNION ALL SELECT 'MIGRATION_AUDIT', COUNT(*) FROM migration_audit
+ORDER BY table_name;
+ 
+SELECT COUNT(*) AS test_provider_count FROM provider WHERE provider_code LIKE 'TEST-%';
+SELECT COUNT(*) AS test_member_count   FROM member   WHERE member_number LIKE 'TEST-%';
+SELECT COUNT(*) AS test_claim_count    FROM claim    WHERE claim_number  LIKE 'TEST-%';

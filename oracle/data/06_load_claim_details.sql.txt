@@ -1,0 +1,27 @@
+INSERT /*+ APPEND */ INTO claim_detail
+    (claim_id, line_number, procedure_code, modifier_code,
+     billed_amount, allowed_amount)
+SELECT
+    c.claim_id,
+    l.line_number,
+    'PROC' || LPAD(MOD(c.claim_rn * 11 + l.line_number * 7, 5000), 5, '0'),
+    CASE MOD(c.claim_rn + l.line_number, 6)
+        WHEN 0 THEN '25' WHEN 1 THEN '26' WHEN 2 THEN '59' WHEN 3 THEN 'TC'
+        ELSE NULL
+    END,
+    ROUND(100 + MOD(c.claim_rn * 19 + l.line_number * 23, 4900)
+              + l.line_number / 100, 2),
+    ROUND((100 + MOD(c.claim_rn * 19 + l.line_number * 23, 4900)
+               + l.line_number / 100)
+          * CASE WHEN MOD(c.claim_rn, 10) = 0 THEN 0 ELSE 0.72 END, 2)
+FROM (SELECT claim_id, ROW_NUMBER() OVER (ORDER BY claim_id) AS claim_rn
+      FROM claim) c
+CROSS JOIN (SELECT LEVEL AS line_number FROM dual CONNECT BY LEVEL <= 3) l;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS claim_detail_count FROM claim_detail;
+ 
+SELECT MIN(cnt) AS minimum_lines, MAX(cnt) AS maximum_lines,
+       AVG(cnt) AS average_lines
+FROM (SELECT claim_id, COUNT(*) AS cnt FROM claim_detail GROUP BY claim_id);

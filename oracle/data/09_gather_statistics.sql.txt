@@ -1,0 +1,20 @@
+BEGIN
+    DBMS_STATS.GATHER_SCHEMA_STATS(
+        ownname          => USER,
+        estimate_percent => DBMS_STATS.AUTO_SAMPLE_SIZE,
+        method_opt       => 'FOR ALL COLUMNS SIZE AUTO',
+        cascade          => TRUE,
+        degree           => DBMS_STATS.AUTO_DEGREE,
+        no_invalidate    => FALSE);
+END;
+/
+ 
+SELECT table_name, num_rows, blocks, last_analyzed
+FROM user_tables
+WHERE table_name IN ('PROVIDER','MEMBER','FEE_SCHEDULE','FEE_SCHEDULE_DETAIL',
+                     'CLAIM','CLAIM_DETAIL','MIGRATION_AUDIT')
+ORDER BY table_name;
+ 
+SELECT index_name, table_name, status, num_rows, last_analyzed
+FROM user_indexes
+ORDER BY table_name, index_name;

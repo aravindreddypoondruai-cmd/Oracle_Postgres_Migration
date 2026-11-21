@@ -1,0 +1,20 @@
+MERGE INTO claim c
+USING (SELECT claim_id,
+              SUM(billed_amount)  AS total_billed,
+              SUM(allowed_amount) AS total_allowed
+       FROM claim_detail
+       GROUP BY claim_id) d
+ON (c.claim_id = d.claim_id)
+WHEN MATCHED THEN UPDATE SET
+    c.total_billed  = d.total_billed,
+    c.total_allowed = d.total_allowed;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS null_total_claims
+FROM claim WHERE total_billed IS NULL OR total_allowed IS NULL;
+ 
+SELECT ROUND(SUM(total_billed), 2)                 AS total_billed,
+       ROUND(SUM(total_allowed), 2)                AS total_allowed,
+       ROUND(SUM(total_billed - total_allowed), 2) AS total_adjustment
+FROM claim;

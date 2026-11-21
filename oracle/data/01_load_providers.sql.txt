@@ -1,0 +1,29 @@
+INSERT /*+ APPEND */ INTO provider
+    (provider_code, provider_name, specialty, state_code,
+     active_flag, created_date, updated_timestamp)
+SELECT
+    'PRV' || LPAD(LEVEL, 7, '0'),
+    'Synthetic Provider ' || LPAD(LEVEL, 7, '0'),
+    CASE MOD(LEVEL, 10)
+        WHEN 0 THEN 'Cardiology'      WHEN 1 THEN 'Primary Care'
+        WHEN 2 THEN 'Orthopedics'     WHEN 3 THEN 'Radiology'
+        WHEN 4 THEN 'Dermatology'     WHEN 5 THEN 'Neurology'
+        WHEN 6 THEN 'Oncology'        WHEN 7 THEN 'Pediatrics'
+        WHEN 8 THEN 'General Surgery' ELSE 'Emergency Medicine'
+    END,
+    CASE MOD(LEVEL, 8)
+        WHEN 0 THEN 'TG' WHEN 1 THEN 'KA' WHEN 2 THEN 'MH' WHEN 3 THEN 'TN'
+        WHEN 4 THEN 'AP' WHEN 5 THEN 'DL' WHEN 6 THEN 'GJ' ELSE 'KL'
+    END,
+    CASE WHEN MOD(LEVEL, 20) = 0 THEN 'N' ELSE 'Y' END,
+    TRUNC(SYSDATE) - MOD(LEVEL, 730),
+    SYSTIMESTAMP
+FROM dual
+CONNECT BY LEVEL <= 1000;
+ 
+COMMIT;
+ 
+SELECT COUNT(*) AS provider_count FROM provider;
+ 
+SELECT specialty, COUNT(*) AS provider_count
+FROM provider GROUP BY specialty ORDER BY specialty;

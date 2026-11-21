@@ -1,0 +1,98 @@
+----Row Counts---
+SELECT 'PROVIDER' AS table_name, COUNT(*) AS row_count FROM provider
+UNION ALL SELECT 'MEMBER', COUNT(*) FROM member
+UNION ALL SELECT 'FEE_SCHEDULE', COUNT(*) FROM fee_schedule
+UNION ALL SELECT 'FEE_SCHEDULE_DETAIL', COUNT(*) FROM fee_schedule_detail
+UNION ALL SELECT 'CLAIM', COUNT(*) FROM claim
+UNION ALL SELECT 'CLAIM_DETAIL', COUNT(*) FROM claim_detail
+ORDER BY table_name;
+
+---Duplicate business keys (each must return no rows)---
+
+SELECT provider_code, COUNT(*) FROM provider
+GROUP BY provider_code HAVING COUNT(*) > 1;
+ 
+SELECT member_number, COUNT(*) FROM member
+GROUP BY member_number HAVING COUNT(*) > 1;
+ 
+SELECT schedule_code, COUNT(*) FROM fee_schedule
+GROUP BY schedule_code HAVING COUNT(*) > 1;
+ 
+SELECT claim_number, COUNT(*) FROM claim
+GROUP BY claim_number HAVING COUNT(*) > 1;
+
+---Orphan validation (each must return 0)---
+
+SELECT COUNT(*) AS orphan_claim_members
+FROM claim c LEFT JOIN member m ON m.member_id = c.member_id
+WHERE m.member_id IS NULL;
+ 
+SELECT COUNT(*) AS orphan_claim_providers
+FROM claim c LEFT JOIN provider p ON p.provider_id = c.provider_id
+WHERE p.provider_id IS NULL;
+ 
+SELECT COUNT(*) AS orphan_claim_details
+FROM claim_detail cd LEFT JOIN claim c ON c.claim_id = cd.claim_id
+WHERE c.claim_id IS NULL;
+ 
+SELECT COUNT(*) AS orphan_fee_details
+FROM fee_schedule_detail fsd
+LEFT JOIN fee_schedule fs ON fs.schedule_id = fsd.schedule_id
+WHERE fs.schedule_id IS NULL;
+
+----Claim header vs. detail reconciliation (must return 0)----
+SELECT COUNT(*) AS mismatched_claims
+FROM claim c
+JOIN (SELECT claim_id,
+             ROUND(SUM(billed_amount), 2)  AS detail_billed,
+             ROUND(SUM(allowed_amount), 2) AS detail_allowed
+      FROM claim_detail GROUP BY claim_id) d
+  ON d.claim_id = c.claim_id
+WHERE ROUND(c.total_billed, 2)  <> d.detail_billed
+   OR ROUND(c.total_allowed, 2) <> d.detail_allowed;
+
+
+----Mandatory-column nulls (all must be 0)----
+SELECT SUM(CASE WHEN provider_code IS NULL THEN 1 ELSE 0 END) AS null_provider_codes,
+       SUM(CASE WHEN provider_name IS NULL THEN 1 ELSE 0 END) AS null_provider_names
+FROM provider;
+ 
+SELECT SUM(CASE WHEN member_number IS NULL THEN 1 ELSE 0 END) AS null_member_numbers
+FROM member;
+ 
+SELECT SUM(CASE WHEN claim_number IS NULL THEN 1 ELSE 0 END) AS null_claim_numbers,
+       SUM(CASE WHEN member_id    IS NULL THEN 1 ELSE 0 END) AS null_member_ids,
+       SUM(CASE WHEN provider_id  IS NULL THEN 1 ELSE 0 END) AS null_provider_ids
+FROM claim;
+
+
+----Views---
+SELECT COUNT(*) AS active_fee_schedule_view_count FROM v_active_fee_schedule;
+SELECT COUNT(*) AS claim_summary_view_count       FROM v_claim_summary;
+ 
+SELECT *
+FROM (SELECT * FROM v_claim_summary ORDER BY claim_id)
+WHERE ROWNUM <= 10;
+
+
+---7 Function check (Phase 2C logic)---
+SELECT claim_id, total_billed, total_allowed,
+       fn_claim_balance(claim_id)   AS function_balance,
+       total_billed - total_allowed AS calculated_balance
+FROM claim
+WHERE ROWNUM <= 10;
+
+
+----Package function check
+SELECT claim_status,
+       pkg_claim_admin.get_status_label(claim_status) AS status_label,
+       COUNT(*) AS claim_count
+FROM claim
+GROUP BY claim_status, pkg_claim_admin.get_status_label(claim_status)
+ORDER BY claim_status;
+
+
+
+
+
+

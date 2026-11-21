@@ -1,0 +1,63 @@
+------1 Object status----
+
+SELECT object_type, status, COUNT(*) AS object_count
+FROM user_objects
+GROUP BY object_type, status
+ORDER BY object_type, status;
+ 
+SELECT name, type, line, position, text
+FROM user_errors
+ORDER BY name, sequence;
+
+
+----.2 Financial and date baseline
+SELECT ROUND(SUM(total_billed), 2)                 AS total_billed,
+       ROUND(SUM(total_allowed), 2)                AS total_allowed,
+       ROUND(SUM(total_billed - total_allowed), 2) AS total_adjustment,
+       MIN(service_date) AS earliest_service_date,
+       MAX(service_date) AS latest_service_date
+FROM claim;
+ 
+SELECT ROUND(SUM(billed_amount), 2)  AS detail_billed,
+       ROUND(SUM(allowed_amount), 2) AS detail_allowed,
+       MIN(billed_amount) AS minimum_billed,
+       MAX(billed_amount) AS maximum_billed
+FROM claim_detail;
+ 
+SELECT claim_status, COUNT(*) AS claim_count,
+       ROUND(SUM(total_billed), 2)  AS billed_amount,
+       ROUND(SUM(total_allowed), 2) AS allowed_amount
+FROM claim
+GROUP BY claim_status
+ORDER BY claim_status
+
+
+-----3 ID ranges and sequence positions
+SELECT 'PROVIDER' AS object_name, MIN(provider_id) AS min_id,
+       MAX(provider_id) AS max_id, COUNT(*) AS row_count FROM provider
+UNION ALL SELECT 'MEMBER', MIN(member_id), MAX(member_id), COUNT(*) FROM member
+UNION ALL SELECT 'FEE_SCHEDULE', MIN(schedule_id), MAX(schedule_id), COUNT(*)
+          FROM fee_schedule
+UNION ALL SELECT 'FEE_SCHEDULE_DETAIL', MIN(schedule_detail_id),
+          MAX(schedule_detail_id), COUNT(*) FROM fee_schedule_detail
+UNION ALL SELECT 'CLAIM', MIN(claim_id), MAX(claim_id), COUNT(*) FROM claim
+UNION ALL SELECT 'CLAIM_DETAIL', MIN(claim_detail_id), MAX(claim_detail_id),
+          COUNT(*) FROM claim_detail;
+ 
+SELECT sequence_name, last_number, increment_by, cache_size
+FROM user_sequencessss
+ORDER BY sequence_name;
+
+
+----4 Storage size baseline
+SELECT segment_type, ROUND(SUM(bytes) / 1024 / 1024, 2) AS size_mb
+FROM user_segments
+GROUP BY segment_type
+ORDER BY segment_type;
+ 
+SELECT segment_name, segment_type, ROUND(bytes / 1024 / 1024, 2) AS size_mb
+FROM user_segments
+WHERE segment_name IN ('PROVIDER','MEMBER','FEE_SCHEDULE','FEE_SCHEDULE_DETAIL',
+                       'CLAIM','CLAIM_DETAIL','MIGRATION_AUDIT')
+ORDER BY segment_name, segment_type
+
