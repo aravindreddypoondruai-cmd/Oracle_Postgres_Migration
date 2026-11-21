@@ -1,0 +1,32 @@
+-- Phase 4 | Step 2 | Run in ORACLE as MIGLAB
+-- Let the data decide: does any DATE column contain a time component?
+SELECT 'MEMBER.DATE_OF_BIRTH' AS col, COUNT(*) AS rows_with_time
+FROM member WHERE date_of_birth <> TRUNC(date_of_birth)
+UNION ALL
+SELECT 'FEE_SCHEDULE.EFFECTIVE_DATE', COUNT(*)
+FROM fee_schedule WHERE effective_date <> TRUNC(effective_date)
+UNION ALL
+SELECT 'FEE_SCHEDULE.TERMINATION_DATE', COUNT(*)
+FROM fee_schedule WHERE termination_date <> TRUNC(termination_date)
+UNION ALL
+SELECT 'FEE_SCHEDULE_DETAIL.EFFECTIVE_DATE', COUNT(*)
+FROM fee_schedule_detail WHERE effective_date <> TRUNC(effective_date)
+UNION ALL
+SELECT 'CLAIM.SERVICE_DATE', COUNT(*)
+FROM claim WHERE service_date <> TRUNC(service_date)
+UNION ALL
+SELECT 'CLAIM.RECEIVED_DATE', COUNT(*)
+FROM claim WHERE received_date <> TRUNC(received_date)
+UNION ALL
+SELECT 'PROVIDER.CREATED_DATE', COUNT(*)
+FROM provider WHERE created_date <> TRUNC(created_date);
+ 
+-- Longest values actually stored
+SELECT MAX(LENGTH(provider_name)) AS max_provider_name,
+       (SELECT MAX(DBMS_LOB.GETLENGTH(description)) FROM fee_schedule) AS max_clob_length
+FROM provider;
+ 
+-- Largest numeric IDs (confirms bigint is safe)
+SELECT MAX(claim_id) AS max_claim_id,
+       MAX(claim_id) - 2147483647 AS headroom_vs_integer
+FROM claim;

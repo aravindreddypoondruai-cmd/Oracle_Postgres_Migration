@@ -1,0 +1,11 @@
+-- Phase 4 | Step 1 | Run in ORACLE as MIGLAB (FREEPDB1)
+-- Confirms the frozen Phase 2D baseline before migration.
+SELECT 'PROVIDER' AS table_name, COUNT(*) AS row_count FROM provider
+UNION ALL SELECT 'MEMBER', COUNT(*) FROM member
+UNION ALL SELECT 'FEE_SCHEDULE', COUNT(*) FROM fee_schedule
+UNION ALL SELECT 'FEE_SCHEDULE_DETAIL', COUNT(*) FROM fee_schedule_detail
+UNION ALL SELECT 'CLAIM', COUNT(*) FROM claim
+UNION ALL SELECT 'CLAIM_DETAIL', COUNT(*) FROM claim_detail
+UNION ALL SELECT 'MIGRATION_AUDIT', COUNT(*) FROM migration_audit
+ORDER BY table_name;
+-- Expected business total: 236,500 rows
