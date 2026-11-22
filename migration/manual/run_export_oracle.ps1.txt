@@ -1,0 +1,16 @@
+# Phase 4 | Steps 4-5 | Run in PowerShell from the repository root
+# Exports Oracle data to CSV and stages the files in the PostgreSQL container.
+ 
+docker exec oracle-source mkdir -p /tmp/export
+docker cp migration\manual\export_miglab_oracle.sql oracle-source:/tmp/export_miglab_oracle.sql
+ 
+# SQL*Plus prompts for the MIGLAB password
+docker exec -it oracle-source sqlplus MIGLAB@//localhost:1521/FREEPDB1 @/tmp/export_miglab_oracle.sql
+ 
+# Verify line counts
+docker exec oracle-source bash -c "wc -l /tmp/export/*.csv"
+ 
+# Oracle container -> laptop -> PostgreSQL container
+docker cp oracle-source:/tmp/export .\migration\manual\
+docker cp .\migration\manual\export postgres-target:/tmp/
+docker exec postgres-target bash -c "ls -l /tmp/export"

@@ -1,0 +1,13 @@
+# ---- add these lines to .gitignore before Phase 5 ----
+# Secrets
+docker/.env
+*.env
+!*.env.example
+migration/ora2pg/config/ora2pg.conf
+ 
+# Data and backups
+migration/manual/export/
+migration/ora2pg/output/data/
+backups/
+*.dump
+*.csv
