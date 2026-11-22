@@ -1,0 +1,35 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type SHOW_TABLE'
+[1] TABLE CLAIM (owner: MIGLAB, 50000 rows)
+[2] TABLE CLAIM_DETAIL (owner: MIGLAB, 150000 rows)
+[3] TABLE FEE_SCHEDULE (owner: MIGLAB, 500 rows)
+[4] TABLE FEE_SCHEDULE_DETAIL (owner: MIGLAB, 25000 rows)
+[5] TABLE MEMBER (owner: MIGLAB, 10000 rows)
+[6] TABLE MIGRATION_AUDIT (owner: MIGLAB, 1 rows)
+[7] TABLE PROVIDER (owner: MIGLAB, 1000 rows)
+----------------------------------------------------------
+Total number of rows: 236501
+
+Global Temporary Tables:
+
+
+Top 10 of tables sorted by number of rows:
+	[1] TABLE CLAIM_DETAIL has 150000 rows
+	[2] TABLE CLAIM has 50000 rows
+	[3] TABLE FEE_SCHEDULE_DETAIL has 25000 rows
+	[4] TABLE MEMBER has 10000 rows
+	[5] TABLE PROVIDER has 1000 rows
+	[6] TABLE FEE_SCHEDULE has 500 rows
+	[7] TABLE MIGRATION_AUDIT has 1 rows
+Top 10 of largest tables:
+	[1] TABLE CLAIM_DETAIL: 7 MB (150000 rows)
+	[2] TABLE CLAIM: 4 MB (50000 rows)
+	[3] TABLE FEE_SCHEDULE_DETAIL: 2 MB (25000 rows)
+	[4] TABLE MEMBER: 1 MB (10000 rows)
+	[5] TABLE PROVIDER: 0 MB (1000 rows)
+	[6] TABLE FEE_SCHEDULE: 0 MB (500 rows)
+	[7] TABLE MIGRATION_AUDIT: 0 MB (1 rows)

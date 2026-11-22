@@ -1,0 +1,6 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type TEST_DATA'

@@ -1,0 +1,465 @@
+﻿                                                                       QUERY PLAN                                                                       
+--------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=1875.21..1877.71 rows=1000 width=107) (actual time=106.359..106.415 rows=500.00 loops=1)
+   Sort Key: (sum(c.total_billed)) DESC
+   Sort Method: quicksort  Memory: 67kB
+   Buffers: shared hit=664
+   ->  HashAggregate  (cost=1810.38..1825.38 rows=1000 width=107) (actual time=104.731..105.037 rows=500.00 loops=1)
+         Group Key: p.provider_id
+         Batches: 1  Memory Usage: 625kB
+         Buffers: shared hit=661
+         ->  Hash Join  (cost=321.20..1684.24 rows=12614 width=48) (actual time=10.365..99.367 rows=12479.00 loops=1)
+               Hash Cond: (c.provider_id = p.provider_id)
+               Buffers: shared hit=661
+               ->  Bitmap Heap Scan on claim c  (cost=282.70..1612.48 rows=12614 width=21) (actual time=6.519..92.360 rows=12479.00 loops=1)
+                     Recheck Cond: ((claim_status)::text = 'PAID'::text)
+                     Filter: (service_date >= ((CURRENT_DATE - '1 year'::interval))::date)
+                     Rows Removed by Filter: 12521
+                     Heap Blocks: exact=622
+                     Buffers: shared hit=645
+                     ->  Bitmap Index Scan on idx_claim_status  (cost=0.00..279.55 rows=24968 width=0) (actual time=5.639..5.640 rows=25000.00 loops=1)
+                           Index Cond: ((claim_status)::text = 'PAID'::text)
+                           Index Searches: 1
+                           Buffers: shared hit=23
+               ->  Hash  (cost=26.00..26.00 rows=1000 width=35) (actual time=3.743..3.744 rows=1001.00 loops=1)
+                     Buckets: 1024  Batches: 1  Memory Usage: 74kB
+                     Buffers: shared hit=16
+                     ->  Seq Scan on provider p  (cost=0.00..26.00 rows=1000 width=35) (actual time=0.049..3.415 rows=1001.00 loops=1)
+                           Buffers: shared hit=16
+ Planning:
+   Buffers: shared hit=281 read=1
+   I/O Timings: shared read=1.132
+ Planning Time: 15.761 ms
+ Execution Time: 107.369 ms
+(31 rows)
+
+                            query                             | calls | mean_ms |  rows  | shared_blks_hit | shared_blks_read 
+--------------------------------------------------------------+-------+---------+--------+-----------------+------------------
+ <insufficient privilege>                                     |     3 |  790.28 |      0 |          452154 |              135
+ <insufficient privilege>                                     |     5 |  375.68 |      0 |          753790 |              135
+ <insufficient privilege>                                     |     3 |  562.65 |      3 |          452836 |              302
+ <insufficient privilege>                                     |     5 |  330.36 |      5 |          755048 |              302
+ <insufficient privilege>                                     |     5 |  228.88 |     30 |            9719 |                0
+ <insufficient privilege>                                     |     3 |  345.69 |     18 |            5260 |                0
+ <insufficient privilege>                                     |     5 |  180.88 |     30 |             179 |               16
+ <insufficient privilege>                                     |     5 |  166.55 |      5 |            3840 |                0
+ ANALYZE                                                      |     1 |  808.76 |      0 |           12920 |                0
+ <insufficient privilege>                                     |     3 |  179.54 |      3 |            2232 |                0
+ <insufficient privilege>                                     |     1 |  488.31 |      0 |              91 |              959
+ <insufficient privilege>                                     |     3 |  149.35 |      3 |            4272 |                0
+ <insufficient privilege>                                     |     5 |   82.97 |      5 |            7120 |                0
+ SELECT                                                      +|     3 |  124.79 |    228 |             486 |                0
+ a.attrelid,                                                 +|       |         |        |                 | 
+ a.attnum,                                                   +|       |         |        |                 | 
+ a.attname,                                                  +|       |         |        |                 | 
+ a.attstattarget,                                            +|       |         |        |                 | 
+ a.a                                                          |       |         |        |                 | 
+ <insufficient privilege>                                     |     3 |  109.42 |     12 |             115 |               44
+ DO $$\r                                                     +|     1 |  231.11 |      0 |            1161 |                3
+ DECLARE\r                                                   +|       |         |        |                 | 
+     v_id     bigint;\r                                      +|       |         |        |                 | 
+     v_kind   "char";\r                                      +|       |         |        |                 | 
+                                                              |       |         |        |                 | 
+ COPY claim (claim_id,claim_number,member_id,provider_id,serv |     6 |   34.51 |  50000 |            2767 |                0
+ SELECT claim_id,claim_number,member_id,provider_id,service_d |     1 |  201.63 |  10000 |            9999 |               40
+ COPY claim_detail (claim_detail_id,claim_id,line_number,proc |    16 |   12.38 | 150000 |            5254 |                0
+ SELECT count(*) FROM miglab.claim_detail                     |     1 |  176.11 |      1 |            1424 |                0
+ ALTER TABLE claim ADD UNIQUE (claim_number)                  |     1 |  169.16 |      0 |            1158 |                0
+ CREATE INDEX idx_claim_detail_claim ON claim_detail (claim_i |     1 |  158.14 |      0 |            1556 |                0
+ CREATE INDEX idx_claim_member ON claim (member_id)           |     1 |  141.74 |      0 |            1071 |                0
+ EXPLAIN (ANALYZE, BUFFERS)\r                                +|     1 |  126.00 |      0 |             959 |                1
+ SELECT p.provider_id,\r                                     +|       |         |        |                 | 
+        p.                                                    |       |         |        |                 | 
+ <insufficient privilege>                                     |     3 |   38.82 |     45 |            2099 |                1
+ SELECT tableoid, oid, collname, collnamespace, collowner, co |     3 |   38.79 |   2640 |              48 |                0
+ <insufficient privilege>                                     |     3 |   37.86 |      3 |            2664 |                0
+ <insufficient privilege>                                     |     5 |   22.46 |      5 |            1135 |                0
+ <insufficient privilege>                                     |     5 |   22.30 |      5 |            4560 |                0
+ <insufficient privilege>                                     |     4 |   27.40 |    304 |            1864 |                0
+ <insufficient privilege>                                     |     5 |   20.96 |     20 |            3840 |                0
+ <insufficient privilege>                                     |     5 |   20.84 |     20 |             196 |               44
+ CREATE TABLE claim (                                        +|     1 |   91.41 |      0 |             549 |                0
+         claim_id bigint NOT NULL,                           +|       |         |        |                 | 
+         claim_numbe                                          |       |         |        |                 | 
+ <insufficient privilege>                                     |     3 |   29.92 |     12 |            2232 |                0
+ <insufficient privilege>                                     |     5 |   17.59 |      5 |            7120 |                0
+ CREATE INDEX idx_fsd_proc_code ON fee_schedule_detail (proce |     1 |   86.70 |      0 |             351 |                0
+ <insufficient privilege>                                     |     3 |   27.56 |      3 |            4272 |                0
+ CREATE OR REPLACE FUNCTION miglab.fn_claim_balance ( p_claim |     1 |   75.95 |      0 |             189 |                0
+ ALTER TABLE claim_detail ADD UNIQUE (claim_id,line_number)   |     1 |   74.30 |      0 |            1621 |                0
+ SELECT c.tableoid, c.oid, conrelid, conname, pg_catalog.pg_g |     3 |   22.88 |     12 |              78 |                0
+ <insufficient privilege>                                     |     3 |   22.36 |     45 |            1968 |                0
+ COPY fee_schedule_detail (schedule_detail_id,schedule_id,pro |     3 |   22.05 |  25000 |             888 |                0
+ <insufficient privilege>                                     |     1 |   60.91 |      0 |            4256 |                0
+ <insufficient privilege>                                     |     3 |   19.91 |    228 |            1431 |                0
+ ALTER TABLE claim_detail ADD PRIMARY KEY (claim_detail_id)   |     1 |   56.02 |      0 |            1594 |                0
+ SELECT $1 AS table_name, count(*) AS row_count FROM miglab.p |     3 |   18.59 |     21 |            2655 |                0
+ SELECT tableoid, oid, rulename, ev_class AS ruletable, ev_ty |     3 |   18.20 |    453 |              45 |                0
+ CREATE OR REPLACE FUNCTION get_sequence_last_values() RETURN |     1 |   50.45 |      0 |              98 |                0
+ SELECT                                                      +|     3 |   16.48 |    228 |            1098 |                0
+ a.attrelid,                                                 +|       |         |        |                 | 
+ a.attnum,                                                   +|       |         |        |                 | 
+ a.attname,                                                  +|       |         |        |                 | 
+ a.attstattarget,                                            +|       |         |        |                 | 
+ a.a                                                          |       |         |        |                 | 
+ SELECT t.tableoid, t.oid, i.indrelid, t.relname AS indexname |     3 |   14.86 |     60 |            2895 |                0
+ SELECT schedule_detail_id,schedule_id,procedure_code,modifie |     1 |   44.48 |  10000 |             113 |               29
+ ALTER TABLE claim ADD CONSTRAINT fk_claim_member FOREIGN KEY |     1 |   43.27 |      0 |             892 |               83
+ <insufficient privilege>                                     |     3 |   14.04 |      0 |             384 |                4
+ <insufficient privilege>                                     |     3 |   12.86 |     18 |             108 |                6
+ SELECT claim_detail_id,claim_id,line_number,procedure_code,m |     1 |   35.53 |  10000 |           10003 |               38
+ CREATE INDEX idx_claim_status ON claim (claim_status)        |     1 |   35.07 |      0 |             898 |                0
+ SELECT table_schema, table_name\r                           +|     1 |   34.66 |      9 |            1202 |                0
+ FROM information_schema.tab                                  |       |         |        |                 | 
+ CREATE SCHEMA IF NOT EXISTS miglab                           |     2 |   17.09 |      0 |              84 |                0
+ COPY member (member_id,member_number,first_name,last_name,da |     2 |   15.97 |  10000 |             574 |                0
+ CREATE OR REPLACE VIEW v_active_fee_schedule (schedule_id, s |     1 |   31.45 |      0 |             982 |                0
+ SELECT description, classoid, objoid, objsubid FROM pg_catal |     3 |   10.39 |  16122 |             147 |                0
+ <insufficient privilege>                                     |     3 |    9.59 |      0 |              58 |                0
+ SELECT member_id,member_number,first_name,last_name,date_of_ |     1 |   28.57 |  10000 |             156 |               40
+ <insufficient privilege>                                     |     3 |    9.18 |      3 |             126 |                0
+ ALTER TABLE claim_detail ADD CONSTRAINT fk_claim_detail_clai |     1 |   27.44 |      0 |            2423 |               11
+ CREATE TABLE fee_schedule (                                 +|     1 |   25.81 |      0 |             495 |                0
+         schedule_id bigint NOT NULL,                        +|       |         |        |                 | 
+         s                                                    |       |         |        |                 | 
+ CREATE INDEX idx_claim_service_date ON claim (service_date)  |     1 |   25.27 |      0 |             879 |                0
+ SELECT description, classoid, objoid, objsubid FROM pg_catal |     3 |    8.32 |  16122 |             147 |                0
+ ALTER TABLE member ADD UNIQUE (member_number)                |     1 |   24.29 |      0 |             256 |                0
+ ALTER TABLE fee_schedule_detail ADD PRIMARY KEY (schedule_de |     1 |   23.65 |      0 |             382 |                0
+ CREATE INDEX idx_claim_provider ON claim (provider_id)       |     1 |   21.92 |      0 |             840 |                0
+ SELECT p.tableoid, p.oid, p.proname, p.prolang, p.pronargs,  |     3 |    7.23 |     57 |             345 |                0
+ ALTER TABLE claim ADD CONSTRAINT ck_claim_status CHECK (clai |     1 |   18.70 |      0 |             975 |                0
+ SELECT p.tableoid, p.oid, p.proname, p.prolang, p.pronargs,  |     3 |    5.94 |     78 |             345 |                0
+ ALTER TABLE claim ADD PRIMARY KEY (claim_id)                 |     1 |   17.63 |      0 |             908 |                0
+ SELECT count(*) FROM miglab.member                           |     1 |   17.38 |      1 |             124 |                0
+ SELECT set_config(name, $1, $2) FROM pg_settings WHERE name  |     3 |    5.47 |      3 |               9 |                0
+ SELECT c.tableoid, c.oid, c.relname, c.relnamespace, c.relki |     3 |    5.22 |    693 |             303 |                0
+ SELECT tableoid, oid, typname, typnamespace, typacl, acldefa |     3 |    5.15 |   1929 |            4826 |                0
+ SELECT n.nspname,proname,prorettype                         +|     1 |   14.92 |     12 |             125 |                0
+ FROM pg_catalog.pg_proc                                      |       |         |        |                 | 
+ SELECT count(*)                                             +|     1 |   14.46 |      1 |             568 |                0
+ FROM pg_catalog.pg_class c                                  +|       |         |        |                 | 
+      LEFT JOIN pg                                            |       |         |        |                 | 
+ ALTER TABLE member ADD PRIMARY KEY (member_id)               |     1 |   12.86 |      0 |             275 |                0
+ ALTER SEQUENCE IF EXISTS seq_claim RESTART WITH 111202       |     1 |   11.72 |      0 |              70 |                0
+ SELECT c.tableoid, c.oid, c.relname, c.relnamespace, c.relki |     3 |    3.86 |    693 |             303 |                0
+ SELECT t.tableoid, t.oid, i.indrelid, t.relname AS indexname |     3 |    3.85 |     60 |            3093 |                0
+ SELECT tableoid, oid, collname, collnamespace, collowner, co |     3 |    3.82 |   2640 |              48 |                0
+ SELECT tableoid, oid, rulename, ev_class AS ruletable, ev_ty |     3 |    3.63 |    453 |              45 |                0
+ SELECT tableoid, oid, typname, typnamespace, typacl, acldefa |     3 |    3.61 |   1929 |            4824 |                0
+ DO $$\r                                                     +|     1 |   10.36 |      0 |              85 |                0
+ BEGIN\r                                                     +|       |         |        |                 | 
+     IF EXISTS (SELECT 1 FROM pg_namespace WHER               |       |         |        |                 | 
+ SELECT classid, objid, refclassid, refobjid, deptype FROM pg |     3 |    3.20 |   5757 |              57 |                0
+ SELECT tableoid, oid, oprname, oprnamespace, oprowner, oprki |     3 |    3.13 |   2397 |              42 |                0
+ SELECT pg_catalog.pg_get_viewdef($1::pg_catalog.oid) AS view |     6 |    1.47 |      6 |             405 |                0
+ SELECT count(*) FROM miglab.claim                            |     1 |    8.78 |      1 |              46 |                0
+ SELECT classid, objid, refclassid, refobjid, deptype FROM pg |     3 |    2.92 |   5838 |              57 |                0
+ CREATE INDEX idx_fsd_schedule ON fee_schedule_detail (schedu |     1 |    8.67 |      0 |             331 |                0
+ <insufficient privilege>                                     |     1 |    7.85 |      0 |             141 |                0
+ SELECT upper(pg_namespace.nspname||$1||pg_class.relname), pg |     1 |    7.63 |     56 |              55 |                0
+ <insufficient privilege>                                     |     1 |    7.46 |      0 |              25 |                0
+ SELECT * FROM get_sequence_last_values()                     |     1 |    7.27 |      7 |             177 |                0
+ SELECT oid, tableoid, defaclrole, defaclnamespace, defaclobj |     3 |    2.42 |      6 |               3 |                0
+ <insufficient privilege>                                     |     1 |    7.02 |      0 |               8 |                0
+ SELECT n.nspname||$1||e.oid::regclass,                      +|     1 |    6.98 |     36 |             378 |                0
+   count((SELECT subst                                        |       |         |        |                 | 
+ SELECT tableoid, oid, opfmethod, opfname, opfnamespace, opfo |     3 |    2.27 |    438 |               6 |                0
+ DROP FUNCTION get_sequence_last_values                       |     1 |    6.71 |      0 |              98 |                0
+ SELECT tableoid, oid, opcmethod, opcname, opcnamespace, opco |     3 |    2.13 |    531 |               9 |                0
+ CREATE OR REPLACE PROCEDURE miglab.pr_recalculate_claim ( p_ |     1 |    6.39 |      0 |             179 |                0
+ CREATE SEQUENCE seq_claim INCREMENT 1 MINVALUE 1 NO MAXVALUE |     1 |    6.30 |      0 |             251 |                0
+ ALTER TABLE claim ADD CONSTRAINT fk_claim_provider FOREIGN K |     1 |    6.01 |      0 |             270 |               51
+ SELECT set_config(name, $1, $2) FROM pg_settings WHERE name  |     3 |    1.90 |      3 |               9 |                0
+ <insufficient privilege>                                     |     1 |    5.63 |      1 |              16 |                0
+ <insufficient privilege>                                     |     1 |    5.40 |      0 |               5 |                0
+ CREATE TABLE migration_audit (                              +|     1 |    5.11 |      0 |             334 |                0
+         audit_id bigint NOT NULL,                           +|       |         |        |                 | 
+         p                                                    |       |         |        |                 | 
+ CREATE TABLE fee_schedule_detail (                          +|     1 |    5.01 |      0 |             236 |                0
+         schedule_detail_id bigin                             |       |         |        |                 | 
+ SELECT tableoid, oid, conname, connamespace, conowner FROM p |     3 |    1.67 |    384 |               6 |                0
+ SELECT pg_catalog.pg_get_viewdef($1::pg_catalog.oid) AS view |     6 |    0.82 |      6 |             405 |                0
+ SELECT count(*) FROM miglab.fee_schedule_detail              |     1 |    4.84 |      1 |              24 |                0
+ COPY provider (provider_id,provider_code,provider_name,speci |     1 |    4.79 |   1000 |             128 |                0
+ <insufficient privilege>                                     |     1 |    4.75 |      1 |              20 |                0
+ <insufficient privilege>                                     |     3 |    1.48 |      0 |             139 |                0
+ COPY fee_schedule (schedule_id,schedule_code,schedule_name,e |     1 |    4.19 |    500 |             129 |                0
+ <insufficient privilege>                                     |     1 |    4.10 |      0 |               9 |                0
+ LOCK TABLE miglab.provider, miglab.member, miglab.fee_schedu |     3 |    1.33 |      0 |             138 |                0
+ ALTER TABLE fee_schedule_detail ADD CONSTRAINT fk_fsd_schedu |     1 |    3.91 |      0 |             329 |               31
+ SELECT tableoid, oid, oprname, oprnamespace, oprowner, oprki |     3 |    1.30 |   2397 |              42 |                0
+ <insufficient privilege>                                     |     5 |    0.77 |      5 |              80 |                0
+ CREATE OR REPLACE FUNCTION pkg_claim_admin.get_status_label  |     1 |    3.76 |      0 |             126 |                0
+ SELECT CASE WHEN regexp_count(r.conrelid::regclass::text, n. |     2 |    1.85 |      7 |              65 |                0
+ CREATE INDEX idx_provider_specialty ON provider (specialty)  |     1 |    3.57 |      0 |             136 |                0
+ SELECT tn.nspname||$1||t.relname, count(*)                  +|     1 |    3.45 |      7 |              83 |                0
+ FROM pg_index i                                             +|       |         |        |                 | 
+ J                                                            |       |         |        |                 | 
+ SELECT tableoid, oid, amname, amtype, amhandler::pg_catalog. |     3 |    1.14 |     21 |             129 |                0
+ SELECT count(*) FROM miglab.provider                         |     1 |    3.40 |      1 |              20 |                0
+ SELECT tableoid, oid, amname, amtype, amhandler::pg_catalog. |     3 |    1.12 |     21 |             129 |                0
+ CREATE SCHEMA IF NOT EXISTS pkg_claim_admin                  |     1 |    3.27 |      0 |              77 |                0
+ ALTER SEQUENCE seq_claim START WITH 111201                   |     1 |    3.25 |      0 |             114 |                0
+ <insufficient privilege>                                     |     1 |    3.20 |      1 |               0 |                0
+ SELECT pg_catalog.set_config($1, $2, $3)                     |     9 |    0.35 |      9 |               0 |                0
+ CREATE OR REPLACE PROCEDURE pkg_claim_admin.upsert_audit ( p |     1 |    3.16 |      0 |              67 |                0
+ GRANT USAGE ON SCHEMA miglab TO miglab_ro                    |     1 |    3.04 |      0 |              79 |                0
+ SELECT n.tableoid, n.oid, n.nspname, n.nspowner, n.nspacl, a |     3 |    1.01 |     18 |              15 |                0
+ SELECT count(*) FROM miglab.fee_schedule                     |     1 |    3.01 |      1 |              18 |                0
+ ALTER TABLE fee_schedule ADD PRIMARY KEY (schedule_id)       |     1 |    2.98 |      0 |             183 |                0
+ <insufficient privilege>                                     |     1 |    2.97 |      0 |             108 |                0
+ DROP SCHEMA IF EXISTS pkg_claim_admin CASCADE                |     1 |    2.93 |      0 |               3 |                0
+ SELECT x.tableoid, x.oid, x.extname, n.nspname, x.extrelocat |     3 |    0.96 |      6 |               6 |                0
+ ALTER SEQUENCE IF EXISTS seq_fee_schedule RESTART WITH 2222  |     1 |    2.85 |      0 |              41 |                0
+ SELECT tableoid, oid, tmplname, tmplnamespace, tmplinit::oid |     3 |    0.95 |     15 |               3 |                0
+ SELECT current_database(), version()                         |     2 |    1.40 |      2 |               0 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_claim_bi() |     1 |    2.78 |      0 |             159 |                0
+ SELECT tn.nspname||$1||t.relname, count(*)                  +|     1 |    2.76 |      5 |              25 |                0
+ FROM pg_constrain                                            |       |         |        |                 | 
+ CREATE OR REPLACE VIEW v_claim_summary (claim_id, claim_numb |     1 |    2.75 |      0 |             257 |                0
+ <insufficient privilege>                                     |     1 |    2.72 |      9 |              37 |                0
+ CREATE TABLE provider (                                     +|     1 |    2.71 |      0 |             250 |                0
+         provider_id bigint NOT NULL,                        +|       |         |        |                 | 
+         provi                                                |       |         |        |                 | 
+ SELECT count(*)                                             +|     1 |    2.71 |      1 |              20 |                0
+ FROM pg_catalog.pg_class c                                  +|       |         |        |                 | 
+      LEFT JOIN pg                                            |       |         |        |                 | 
+ <insufficient privilege>                                     |     1 |    2.67 |      9 |              37 |                0
+ ALTER TABLE provider ADD PRIMARY KEY (provider_id)           |     1 |    2.66 |      0 |             163 |                0
+ SELECT tableoid, oid, castsource, casttarget, castfunc, cast |     3 |    0.87 |    687 |               9 |                0
+ SELECT a.tableoid, a.oid, adrelid, adnum, pg_catalog.pg_get_ |     3 |    0.85 |     33 |             222 |                0
+ SET search_path = $1,public                                  |    50 |    0.05 |      0 |               0 |                0
+ SELECT schedule_id,schedule_code,schedule_name,effective_dat |     1 |    2.39 |    500 |              21 |                0
+ CREATE TABLE claim_detail (                                 +|     1 |    2.39 |      0 |             198 |                0
+         claim_detail_id bigint NOT NULL                      |       |         |        |                 | 
+ SELECT p.tableoid, p.oid, p.proname AS aggname, p.pronamespa |     3 |    0.77 |      0 |             324 |                0
+ <insufficient privilege>                                     |     1 |    2.28 |      0 |              80 |                0
+ SELECT conrelid, confrelid FROM pg_constraint JOIN pg_depend |     3 |    0.75 |      0 |              54 |                0
+ CREATE SEQUENCE seq_provider INCREMENT 1 MINVALUE 1 NO MAXVA |     1 |    2.15 |      0 |              74 |                0
+ ALTER SEQUENCE IF EXISTS seq_claim_detail RESTART WITH 26389 |     1 |    2.13 |      0 |              41 |                0
+ ALTER TABLE fee_schedule ADD UNIQUE (schedule_code)          |     1 |    2.12 |      0 |             144 |                0
+ <insufficient privilege>                                     |     1 |    2.09 |      0 |              56 |                0
+ SELECT classid, objid, refobjid FROM pg_depend WHERE refclas |     3 |    0.68 |     39 |              15 |                0
+ SELECT c.tableoid, c.oid, conrelid, conname, confrelid, coni |     3 |    0.65 |     12 |              42 |                0
+ SELECT provider_id,provider_code,provider_name,specialty,sta |     1 |    1.94 |   1000 |              17 |                5
+ SELECT t.tgrelid, t.tgname, pg_catalog.pg_get_triggerdef(t.o |     3 |    0.64 |     21 |             174 |                0
+ <insufficient privilege>                                     |     1 |    1.92 |      0 |              42 |                0
+ CREATE SEQUENCE seq_claim_detail INCREMENT 1 MINVALUE 1 NO M |     1 |    1.88 |      0 |              75 |                0
+ ALTER SEQUENCE seq_fee_schedule_detail START WITH 222221     |     1 |    1.83 |      0 |              40 |                0
+ ALTER TABLE member ADD CONSTRAINT ck_member_active CHECK (ac |     1 |    1.82 |      0 |             186 |                0
+ SELECT p.tableoid, p.oid, p.proname AS aggname, p.pronamespa |     3 |    0.60 |      0 |             324 |                0
+ SELECT count(*)                                             +|     1 |    1.81 |      1 |              63 |                0
+ FROM pg_catalog.pg_type t                                   +|       |         |        |                 | 
+      LEFT JOIN pg_                                           |       |         |        |                 | 
+ SELECT tableoid, oid, opcmethod, opcname, opcnamespace, opco |     3 |    0.58 |    531 |               9 |                0
+ SELECT tableoid, oid, dictname, dictnamespace, dictowner, di |     3 |    0.58 |     90 |               3 |                0
+ <insufficient privilege>                                     |     1 |    1.71 |      1 |               7 |                0
+ SELECT label, provider, classoid, objoid, objsubid FROM pg_c |     3 |    0.57 |      0 |               0 |                0
+ COPY migration_audit (audit_id,process_name,source_count,tar |     1 |    1.68 |      1 |              91 |                0
+ ALTER SEQUENCE seq_fee_schedule START WITH 2221              |     1 |    1.68 |      0 |              42 |                0
+ SELECT relname, n_live_tup, last_analyze\r                  +|     1 |    1.64 |      7 |              20 |                0
+ FROM pg_stat_user_                                           |       |         |        |                 | 
+ ALTER TABLE migration_audit ADD PRIMARY KEY (audit_id)       |     1 |    1.62 |      0 |             166 |                0
+ SELECT tableoid, oid, castsource, casttarget, castfunc, cast |     3 |    0.54 |    687 |               9 |                0
+ SELECT tableoid, oid, conname, connamespace, conowner FROM p |     3 |    0.53 |    384 |               6 |                0
+ <insufficient privilege>                                     |     1 |    1.56 |      0 |              24 |                0
+ ALTER SEQUENCE IF EXISTS seq_provider RESTART WITH 2242      |     1 |    1.54 |      0 |              36 |                0
+ ALTER TABLE provider ADD UNIQUE (provider_code)              |     1 |    1.50 |      0 |             132 |                0
+ <insufficient privilege>                                     |     1 |    1.49 |      1 |               7 |                0
+ SELECT a.tableoid, a.oid, adrelid, adnum, pg_catalog.pg_get_ |     3 |    0.48 |     33 |             282 |                0
+ ALTER TABLE fee_schedule ADD CONSTRAINT ck_fee_schedule_stat |     1 |    1.42 |      0 |              70 |                0
+ <insufficient privilege>                                     |     3 |    0.47 |      3 |              54 |                0
+ SELECT schemaname||$1||tablename, count(*)                  +|     1 |    1.36 |      7 |              92 |                0
+ FROM pg_indexes                                             +|       |         |        |                 | 
+ J                                                            |       |         |        |                 | 
+ SELECT tableoid, oid, prsname, prsnamespace, prsstart::oid,  |     3 |    0.44 |      3 |               3 |                0
+ SELECT tableoid, oid, opfmethod, opfname, opfnamespace, opfo |     3 |    0.44 |    438 |               6 |                0
+ CREATE TABLE member (                                       +|     1 |    1.30 |      0 |             226 |                0
+         member_id bigint NOT NULL,                          +|       |         |        |                 | 
+         member_nu                                            |       |         |        |                 | 
+ SELECT oid FROM pg_catalog.pg_namespace n                   +|     6 |    0.21 |      6 |               6 |                0
+ WHERE n.nspname OP                                           |       |         |        |                 | 
+ ALTER SEQUENCE IF EXISTS seq_migration_audit RESTART WITH 22 |     1 |    1.19 |      0 |              38 |                0
+ CREATE SEQUENCE seq_migration_audit INCREMENT 1 MINVALUE 1 N |     1 |    1.18 |      0 |              71 |                0
+ SELECT relname FROM pg_class WHERE relname = $1              |    21 |    0.06 |     21 |              84 |                0
+ SELECT c.relname,n.nspname,i.indkey                         +|     1 |    1.05 |     12 |             743 |                0
+ FROM pg_catalog.pg_class                                     |       |         |        |                 | 
+ CREATE OR REPLACE PROCEDURE pkg_claim_admin.recalculate_open |     1 |    1.01 |      0 |              24 |                0
+ SELECT x.tableoid, x.oid, x.extname, n.nspname, x.extrelocat |     3 |    0.33 |      6 |               9 |                0
+ SELECT label, provider, classoid, objoid, objsubid FROM pg_c |     3 |    0.31 |      0 |               0 |                0
+ ALTER SCHEMA miglab OWNER TO miglab                          |     1 |    0.93 |      0 |               2 |                0
+ SELECT tableoid, oid, dictname, dictnamespace, dictowner, di |     3 |    0.31 |     90 |               3 |                0
+ ALTER SEQUENCE IF EXISTS seq_member RESTART WITH 22242       |     1 |    0.92 |      0 |              38 |                0
+ ALTER SEQUENCE seq_migration_audit START WITH 21             |     1 |    0.92 |      0 |              40 |                0
+ CREATE TRIGGER trg_fee_schedule_detail_bi                   +|     1 |    0.87 |      0 |              27 |                0
+ BEFORE INSERT ON f                                           |       |         |        |                 | 
+ <insufficient privilege>                                     |     1 |    0.87 |      0 |               5 |                0
+ DROP TRIGGER IF EXISTS trg_claim_bi ON claim CASCADE         |     1 |    0.85 |      0 |              91 |                0
+ SET client_encoding TO $1                                    |    41 |    0.02 |      0 |               0 |                0
+ SELECT attname,attnum,atttypid::regtype                     +|     7 |    0.12 |     56 |              66 |                0
+ FROM pg_attribute                                           +|       |         |        |                 | 
+ WH                                                           |       |         |        |                 | 
+ PREPARE dumpFunc(pg_catalog.oid) AS                         +|    36 |    0.02 |     36 |             198 |                0
+ SELECT                                                      +|       |         |        |                 | 
+ proretset,                                                  +|       |         |        |                 | 
+ prosrc                                                       |       |         |        |                 | 
+ <insufficient privilege>                                     |     1 |    0.82 |      0 |              12 |                0
+ <insufficient privilege>                                     |     1 |    0.80 |      3 |               4 |                0
+ SELECT c.tableoid, c.oid, conrelid, conname, pg_catalog.pg_g |     3 |    0.26 |     12 |              78 |                0
+ SELECT tableoid, oid, prsname, prsnamespace, prsstart::oid,  |     3 |    0.26 |      3 |               3 |                0
+ PREPARE dumpFunc(pg_catalog.oid) AS                         +|    15 |    0.05 |     15 |             105 |                0
+ SELECT                                                      +|       |         |        |                 | 
+ proretset,                                                  +|       |         |        |                 | 
+ prosrc                                                       |       |         |        |                 | 
+ CREATE SEQUENCE seq_fee_schedule INCREMENT 1 MINVALUE 1 NO M |     1 |    0.75 |      0 |              71 |                0
+ LOCK TABLE miglab.claim, miglab.claim_detail, miglab.fee_sch |     3 |    0.25 |      0 |             138 |                0
+ BEGIN                                                        |    18 |    0.04 |      0 |               0 |                0
+ ALTER SEQUENCE seq_claim_detail START WITH 263896            |     1 |    0.63 |      0 |              42 |                0
+ SELECT                                                      +|     1 |    0.63 |      0 |               3 |                0
+     nmsp_parent.nspname || $1 || parent.relname,            +|       |         |        |                 | 
+                                                              |       |         |        |                 | 
+ CREATE SEQUENCE seq_member INCREMENT 1 MINVALUE 1 NO MAXVALU |     1 |    0.62 |      0 |              71 |                0
+ SELECT t.tgrelid, t.tgname, pg_catalog.pg_get_triggerdef(t.o |     3 |    0.20 |      0 |               6 |                0
+ <insufficient privilege>                                     |     1 |    0.59 |      1 |              13 |                0
+ <insufficient privilege>                                     |     1 |    0.57 |      1 |               0 |                0
+ SELECT n.nspname||$1||e.oid::regclass, count(*)             +|     1 |    0.56 |      7 |              54 |                0
+ FROM pg_cata                                                 |       |         |        |                 | 
+ SELECT tableoid, oid, tmplname, tmplnamespace, tmplinit::oid |     3 |    0.18 |     15 |               3 |                0
+ GRANT SELECT ON ALL TABLES    IN SCHEMA miglab TO miglab_ro  |     1 |    0.55 |      0 |             123 |                0
+ SELECT oid FROM pg_catalog.pg_namespace n                   +|     6 |    0.08 |      6 |               6 |                0
+ WHERE n.nspname OP                                           |       |         |        |                 | 
+ CREATE SEQUENCE seq_fee_schedule_detail INCREMENT 1 MINVALUE |     1 |    0.49 |      0 |              71 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_fee_schedu |     1 |    0.46 |      0 |              24 |                0
+ ALTER SEQUENCE IF EXISTS seq_fee_schedule_detail RESTART WIT |     1 |    0.44 |      0 |              41 |                0
+ CREATE TRIGGER trg_claim_bi                                 +|     1 |    0.43 |      0 |              59 |                0
+ BEFORE INSERT ON claim FOR EACH                              |       |         |        |                 | 
+ ALTER SEQUENCE seq_provider START WITH 2241                  |     1 |    0.40 |      0 |              38 |                0
+ CREATE TRIGGER trg_provider_bi                              +|     1 |    0.40 |      0 |              27 |                0
+ BEFORE INSERT ON provider FOR                                |       |         |        |                 | 
+ SELECT count(*)                                             +|     3 |    0.13 |      3 |              48 |                0
+ FROM pg_catalog.pg_class c                                  +|       |         |        |                 | 
+      LEFT JOIN pg                                            |       |         |        |                 | 
+ <insufficient privilege>                                     |     1 |    0.38 |      1 |               8 |                0
+ CREATE TRIGGER trg_migration_audit_bi                       +|     1 |    0.36 |      0 |              59 |                0
+ BEFORE INSERT ON migra                                       |       |         |        |                 | 
+ DROP TRIGGER IF EXISTS trg_migration_audit_bi ON migration_a |     1 |    0.36 |      0 |              18 |                0
+ SET DATESTYLE = $1                                           |     3 |    0.12 |      0 |               0 |                0
+ SELECT oid, tableoid, defaclrole, defaclnamespace, defaclobj |     3 |    0.11 |      6 |               3 |                0
+ SELECT c.tableoid, c.oid, conrelid, conname, confrelid, coni |     3 |    0.11 |     12 |              42 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_fee_schedu |     1 |    0.33 |      0 |              27 |                0
+ ALTER TABLE provider ADD CONSTRAINT ck_provider_active CHECK |     1 |    0.31 |      0 |              67 |                0
+ ALTER SEQUENCE seq_member START WITH 22241                   |     1 |    0.30 |      0 |              40 |                0
+ SELECT conrelid, confrelid FROM pg_constraint JOIN pg_depend |     3 |    0.10 |      0 |              33 |                0
+ SELECT tableoid, oid, cfgname, cfgnamespace, cfgowner, cfgpa |     3 |    0.10 |     90 |               3 |                0
+ SET synchronous_commit TO $1                                 |    30 |    0.01 |      0 |               0 |                0
+ <insufficient privilege>                                     |     1 |    0.28 |      0 |               5 |                0
+ ALTER TABLE member ALTER COLUMN member_id SET NOT NULL       |     1 |    0.28 |      0 |               8 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_migration_ |     1 |    0.27 |      0 |              27 |                0
+ DROP TRIGGER IF EXISTS trg_member_bi ON member CASCADE       |     1 |    0.26 |      0 |              23 |                0
+ SELECT classid, objid, refobjid FROM pg_depend WHERE refclas |     3 |    0.08 |     39 |              15 |                0
+ SELECT n.tableoid, n.oid, n.nspname, n.nspowner, n.nspacl, a |     3 |    0.08 |     18 |              15 |                0
+ CREATE TRIGGER trg_member_bi                                +|     1 |    0.23 |      0 |              27 |                0
+ BEFORE INSERT ON member FOR EAC                              |       |         |        |                 | 
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_member_bi( |     1 |    0.22 |      0 |              24 |                0
+ CREATE TRIGGER trg_fee_schedule_bi                          +|     1 |    0.22 |      0 |              27 |                0
+ BEFORE INSERT ON fee_sche                                    |       |         |        |                 | 
+ DROP TRIGGER IF EXISTS trg_fee_schedule_detail_bi ON fee_sch |     1 |    0.20 |      0 |              20 |                0
+ GRANT SELECT ON ALL SEQUENCES IN SCHEMA miglab TO miglab_ro  |     1 |    0.20 |      0 |              52 |                0
+ DROP TRIGGER IF EXISTS trg_claim_detail_bi ON claim_detail C |     1 |    0.20 |      0 |              20 |                0
+ SELECT tableoid, oid, lanname, lanpltrusted, lanplcallfoid,  |     3 |    0.06 |      3 |               3 |                0
+ DROP TRIGGER IF EXISTS trg_provider_bi ON provider CASCADE   |     1 |    0.18 |      0 |              20 |                0
+ CREATE TRIGGER trg_claim_detail_bi                          +|     1 |    0.18 |      0 |              27 |                0
+ BEFORE INSERT ON claim_de                                    |       |         |        |                 | 
+ SELECT tableoid, oid, cfgname, cfgnamespace, cfgowner, cfgpa |     3 |    0.06 |     90 |               3 |                0
+ SELECT oid, rolname FROM pg_catalog.pg_roles ORDER BY 1      |     3 |    0.06 |     57 |              12 |                0
+ ALTER TABLE fee_schedule ALTER COLUMN schedule_id SET NOT NU |     1 |    0.17 |      0 |              10 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_claim_deta |     1 |    0.16 |      0 |              24 |                0
+ DROP TRIGGER IF EXISTS trg_fee_schedule_bi ON fee_schedule C |     1 |    0.16 |      0 |              25 |                0
+ SELECT tableoid, oid, lanname, lanpltrusted, lanplcallfoid,  |     3 |    0.05 |      3 |               3 |                0
+ SELECT count(*)                                             +|     1 |    0.15 |      1 |              16 |                0
+ FROM pg_catalog.pg_trigger t JOIN pg_class c                 |       |         |        |                 | 
+ SELECT pg_catalog.set_config($1, $2, $3)                     |     9 |    0.02 |      9 |               0 |                0
+ SELECT oid, rolname FROM pg_catalog.pg_roles ORDER BY 1      |     3 |    0.05 |     57 |              12 |                0
+ SELECT seqrelid, format_type(seqtypid, $1), seqstart, seqinc |     3 |    0.04 |     21 |               3 |                0
+ CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_provider_b |     1 |    0.12 |      0 |              24 |                0
+ SELECT n.nspname||$1||c.relname, count(*)                   +|     1 |    0.12 |      7 |              16 |                0
+ FROM pg_catalog.pg                                           |       |         |        |                 | 
+ SELECT e.tableoid, e.oid, evtname, evtenabled, evtevent, evt |     3 |    0.04 |      0 |               0 |                0
+ SET check_function_bodies = $1                               |    11 |    0.01 |      0 |               0 |                0
+ SELECT seqrelid, format_type(seqtypid, $1), seqstart, seqinc |     3 |    0.03 |     21 |               3 |                0
+ SELECT pol.oid, pol.tableoid, pol.polrelid, pol.polname, pol |     3 |    0.03 |      0 |               0 |                0
+ SELECT count(*) FROM miglab.migration_audit                  |     2 |    0.04 |      2 |               2 |                0
+ SELECT pol.oid, pol.tableoid, pol.polrelid, pol.polname, pol |     3 |    0.03 |      0 |               0 |                0
+ ALTER TABLE fee_schedule_detail ALTER COLUMN schedule_id SET |     1 |    0.08 |      0 |               8 |                0
+ SELECT count(*) FROM pg_subscription WHERE subdbid = (SELECT |     3 |    0.02 |      3 |               0 |                0
+ SET extra_float_digits TO $1                                 |     3 |    0.02 |      0 |               0 |                0
+ SELECT tableoid, oid, fdwname, fdwowner, fdwhandler::pg_cata |     3 |    0.02 |      0 |               0 |                0
+ <insufficient privilege>                                     |     1 |    0.07 |      0 |              13 |                0
+ SET DATESTYLE = $1                                           |     3 |    0.02 |      0 |               0 |                0
+ SET extra_float_digits TO $1                                 |     3 |    0.02 |      0 |               0 |                0
+ ALTER TABLE claim ALTER COLUMN service_date SET NOT NULL     |     1 |    0.06 |      0 |               6 |                0
+ ALTER TABLE fee_schedule ALTER COLUMN effective_date SET NOT |     1 |    0.06 |      0 |               7 |                0
+ ALTER TABLE claim ALTER COLUMN member_id SET NOT NULL        |     1 |    0.06 |      0 |               6 |                0
+ SELECT tableoid, oid, srvname, srvowner, srvfdw, srvtype, sr |     3 |    0.02 |      0 |               0 |                0
+ SELECT tableoid, oid, stxname, stxnamespace, stxowner, stxre |     3 |    0.02 |      0 |               0 |                0
+ SET statement_timeout = $1                                   |     3 |    0.02 |      0 |               0 |                0
+ SELECT p.tableoid, p.oid, p.pubname, p.pubowner, p.puballtab |     3 |    0.02 |      0 |               0 |                0
+ ALTER TABLE claim ALTER COLUMN claim_id SET NOT NULL         |     1 |    0.05 |      0 |               6 |                0
+ SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY   |     3 |    0.02 |      0 |               0 |                0
+ SET statement_timeout = $1                                   |     3 |    0.02 |      0 |               0 |                0
+ SELECT tableoid, oid, trftype, trflang, trffromsql::oid, trf |     3 |    0.02 |      0 |               0 |                0
+ ALTER TABLE claim ALTER COLUMN provider_id SET NOT NULL      |     1 |    0.05 |      0 |               6 |                0
+ ALTER TABLE fee_schedule_detail ALTER COLUMN procedure_code  |     1 |    0.05 |      0 |               8 |                0
+ ALTER TABLE fee_schedule_detail ALTER COLUMN schedule_detail |     1 |    0.05 |      0 |               5 |                0
+ SELECT tableoid, oid, prpubid, prrelid, pg_catalog.pg_get_ex |     3 |    0.02 |      0 |               0 |                0
+ SELECT e.tableoid, e.oid, evtname, evtenabled, evtevent, evt |     3 |    0.02 |      0 |               0 |                0
+ SELECT inhrelid, inhparent FROM pg_inherits                  |     3 |    0.02 |      0 |               0 |                0
+ SELECT tableoid, oid, prpubid, prrelid, pg_catalog.pg_get_ex |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE claim_detail ALTER COLUMN claim_id SET NOT NULL  |     1 |    0.04 |      0 |               5 |                0
+ ALTER TABLE provider ALTER COLUMN provider_id SET NOT NULL   |     1 |    0.04 |      0 |               8 |                0
+ SELECT tableoid, oid, fdwname, fdwowner, fdwhandler::pg_cata |     3 |    0.01 |      0 |               0 |                0
+ SET idle_in_transaction_session_timeout = $1                 |     3 |    0.01 |      0 |               0 |                0
+ SELECT tableoid, oid, pnpubid, pnnspid FROM pg_catalog.pg_pu |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE claim ALTER COLUMN claim_number SET NOT NULL     |     1 |    0.04 |      0 |               3 |                0
+ SELECT audit_id,process_name,source_count,target_count,statu |     1 |    0.04 |      1 |               4 |                0
+ ALTER TABLE claim_detail ALTER COLUMN claim_detail_id SET NO |     1 |    0.04 |      0 |               3 |                0
+ SELECT pg_catalog.current_schemas($1)                        |     3 |    0.01 |      3 |               0 |                0
+ COMMIT                                                       |    14 |    0.00 |      0 |               0 |                0
+ SELECT pg_catalog.current_schemas($1)                        |     3 |    0.01 |      3 |               0 |                0
+ SELECT count(*) FROM pg_subscription WHERE subdbid = (SELECT |     3 |    0.01 |      3 |               0 |                0
+ SELECT p.tableoid, p.oid, p.pubname, p.pubowner, p.puballtab |     3 |    0.01 |      0 |               0 |                0
+ SELECT tableoid, oid, srvname, srvowner, srvfdw, srvtype, sr |     3 |    0.01 |      0 |               0 |                0
+ SET TRANSACTION ISOLATION LEVEL REPEATABLE READ, READ ONLY   |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE provider ALTER COLUMN provider_name SET NOT NULL |     1 |    0.03 |      0 |               7 |                0
+ SELECT tableoid, oid, stxname, stxnamespace, stxowner, stxre |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE fee_schedule ALTER COLUMN schedule_code SET NOT  |     1 |    0.03 |      0 |               6 |                0
+ ALTER TABLE fee_schedule_detail ALTER COLUMN allowed_amount  |     1 |    0.03 |      0 |               6 |                0
+ SELECT tableoid, oid, trftype, trflang, trffromsql::oid, trf |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE migration_audit ALTER COLUMN audit_id SET NOT NU |     1 |    0.03 |      0 |               9 |                0
+ SET idle_in_transaction_session_timeout = $1                 |     3 |    0.01 |      0 |               0 |                0
+ SELECT tableoid, oid, pnpubid, pnnspid FROM pg_catalog.pg_pu |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE claim_detail ALTER COLUMN line_number SET NOT NU |     1 |    0.03 |      0 |               5 |                0
+ ALTER TABLE member ALTER COLUMN member_number SET NOT NULL   |     1 |    0.03 |      0 |               6 |                0
+ SELECT pg_catalog.format_type($1::pg_catalog.oid, $2)        |     6 |    0.00 |      6 |               0 |                0
+ ALTER TABLE fee_schedule_detail ALTER COLUMN effective_date  |     1 |    0.03 |      0 |               6 |                0
+ SELECT inhrelid, inhparent FROM pg_inherits                  |     3 |    0.01 |      0 |               0 |                0
+ SELECT pg_catalog.format_type($1::pg_catalog.oid, $2)        |     6 |    0.00 |      6 |               0 |                0
+ SELECT pg_catalog.pg_is_in_recovery()                        |     3 |    0.01 |      3 |               0 |                0
+ SELECT process_name, status, message FROM miglab.migration_a |     1 |    0.02 |      2 |               1 |                0
+ SET INTERVALSTYLE = $1                                       |     3 |    0.01 |      0 |               0 |                0
+ SET row_security = $1                                        |     3 |    0.01 |      0 |               0 |                0
+ SET transaction_timeout = $1                                 |     3 |    0.01 |      0 |               0 |                0
+ ALTER TABLE provider ALTER COLUMN provider_code SET NOT NULL |     1 |    0.02 |      0 |               4 |                0
+ SET lock_timeout = $1                                        |     3 |    0.01 |      0 |               0 |                0
+ SET synchronize_seqscans TO $1                               |     3 |    0.00 |      0 |               0 |                0
+ SET synchronize_seqscans TO $1                               |     3 |    0.00 |      0 |               0 |                0
+ SELECT pg_catalog.pg_is_in_recovery()                        |     3 |    0.00 |      3 |               0 |                0
+ SET INTERVALSTYLE = $1                                       |     3 |    0.00 |      0 |               0 |                0
+ SET lock_timeout = $1                                        |     3 |    0.00 |      0 |               0 |                0
+ SET transaction_timeout = $1                                 |     3 |    0.00 |      0 |               0 |                0
+ SET row_security = $1                                        |     3 |    0.00 |      0 |               0 |                0
+ BEGIN                                                        |     3 |    0.00 |      0 |               0 |                0
+ ROLLBACK                                                     |     1 |    0.00 |      0 |               0 |                0
+(356 rows)
+

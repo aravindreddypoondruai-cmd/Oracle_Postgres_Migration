@@ -1,0 +1,19 @@
+﻿         object_kind          | n  
+------------------------------+----
+ constraints c                |  4
+ constraints f                |  4
+ constraints n                | 22
+ constraints p                |  7
+ constraints u                |  5
+ identity columns             |  7
+ indexes                      | 20
+ routines miglab (f)          |  1
+ routines miglab (p)          |  1
+ routines pkg_claim_admin (f) |  1
+ routines pkg_claim_admin (p) |  2
+ standalone sequences         |  0
+ tables                       |  7
+ user triggers                |  0
+ views                        |  2
+(15 rows)
+

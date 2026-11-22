@@ -1,0 +1,75 @@
+﻿     table_name      | row_count 
+---------------------+-----------
+ CLAIM               |     50000
+ CLAIM_DETAIL        |    150000
+ FEE_SCHEDULE        |       500
+ FEE_SCHEDULE_DETAIL |     25000
+ MEMBER              |     10000
+ PROVIDER            |      1001
+(6 rows)
+
+ total_billed | total_allowed | total_adjustment | earliest_service_date | latest_service_date 
+--------------+---------------+------------------+-----------------------+---------------------
+ 382269300.00 |  247685544.00 |     134583756.00 | 2024-11-22            | 2026-11-21
+(1 row)
+
+ detail_billed | detail_allowed | minimum_billed | maximum_billed 
+---------------+----------------+----------------+----------------
+  382269300.00 |   247685544.00 |         100.01 |        4999.03
+(1 row)
+
+ claim_status | claim_count | billed_amount | allowed_amount 
+--------------+-------------+---------------+----------------
+ DENIED       |        5000 |   38712200.00 |    25072884.00
+ NEW          |       10000 |   76339200.00 |    49460904.00
+ PAID         |       25000 |  191257600.00 |   123933204.00
+ PROCESSING   |       10000 |   75960300.00 |    49218552.00
+(4 rows)
+
+     object_name     | min_id | max_id 
+---------------------+--------+--------
+ PROVIDER            |     21 |   1021
+ MEMBER              |     21 |  10020
+ FEE_SCHEDULE        |      1 |    500
+ FEE_SCHEDULE_DETAIL |      1 |  25000
+ CLAIM               |    101 |  50100
+ CLAIM_DETAIL        |    101 | 150100
+(6 rows)
+
+ total_chars | max_chars 
+-------------+-----------
+       48392 |        97
+(1 row)
+
+ null_modifiers | empty_modifiers 
+----------------+-----------------
+          50001 |               0
+(1 row)
+
+ mismatched_claims 
+-------------------
+                 0
+(1 row)
+
+ active_fee_schedule_view 
+--------------------------
+                      450
+(1 row)
+
+ claim_summary_view 
+--------------------
+              50000
+(1 row)
+
+ claim_status |  status_label  | claim_count 
+--------------+----------------+-------------
+ DENIED       | Rejected       |        5000
+ NEW          | Pending Intake |       10000
+ PAID         | Completed      |       25000
+ PROCESSING   | Under Review   |       10000
+(4 rows)
+
+ claim_id 
+----------
+(0 rows)
+

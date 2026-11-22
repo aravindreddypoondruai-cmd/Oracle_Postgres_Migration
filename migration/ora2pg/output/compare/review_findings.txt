@@ -1,0 +1,169 @@
+﻿Phase 5 - Ora2Pg output review - 2026-11-22 14:07
+
+===== 1. Column data types (tables) =====
+table.sql:18: claim_id bigint NOT NULL,
+table.sql:19: claim_number varchar(30) NOT NULL,
+table.sql:20: member_id bigint NOT NULL,
+table.sql:21: provider_id bigint NOT NULL,
+table.sql:22: service_date timestamp(0) NOT NULL,
+table.sql:23: received_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:24: claim_status varchar(20),
+table.sql:27: created_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:32: claim_detail_id bigint NOT NULL,
+table.sql:33: claim_id bigint NOT NULL,
+table.sql:34: line_number integer NOT NULL,
+table.sql:35: procedure_code varchar(20),
+table.sql:36: modifier_code varchar(10),
+table.sql:43: schedule_id bigint NOT NULL,
+table.sql:44: schedule_code varchar(30) NOT NULL,
+table.sql:45: schedule_name varchar(150),
+table.sql:46: effective_date timestamp(0) NOT NULL,
+table.sql:47: termination_date timestamp(0),
+table.sql:48: status varchar(20) DEFAULT 'ACTIVE',
+table.sql:49: description text,
+table.sql:50: created_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:51: updated_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:56: schedule_detail_id bigint NOT NULL,
+table.sql:57: schedule_id bigint NOT NULL,
+table.sql:58: procedure_code varchar(20) NOT NULL,
+table.sql:59: modifier_code varchar(10),
+table.sql:61: effective_date timestamp(0) NOT NULL,
+table.sql:62: termination_date timestamp(0)
+table.sql:67: member_id bigint NOT NULL,
+table.sql:68: member_number varchar(30) NOT NULL,
+table.sql:69: first_name varchar(100),
+table.sql:70: last_name varchar(100),
+table.sql:71: date_of_birth timestamp(0),
+table.sql:72: state_code varchar(2),
+table.sql:73: active_flag char(1) DEFAULT 'Y',
+table.sql:74: created_date timestamp(0) DEFAULT statement_timestamp()
+table.sql:79: audit_id bigint NOT NULL,
+table.sql:80: process_name varchar(100),
+table.sql:81: source_count bigint,
+table.sql:82: target_count bigint,
+table.sql:83: status varchar(20),
+table.sql:84: message varchar(4000),
+table.sql:85: created_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:90: provider_id bigint NOT NULL,
+table.sql:91: provider_code varchar(20) NOT NULL,
+table.sql:92: provider_name varchar(150) NOT NULL,
+table.sql:93: specialty varchar(100),
+table.sql:94: state_code varchar(2),
+table.sql:95: active_flag char(1) DEFAULT 'Y',
+table.sql:96: created_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:97: updated_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+
+===== 2. Column defaults (SYSDATE etc.) =====
+table.sql:23: received_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:27: created_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:48: status varchar(20) DEFAULT 'ACTIVE',
+table.sql:50: created_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:51: updated_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:73: active_flag char(1) DEFAULT 'Y',
+table.sql:74: created_date timestamp(0) DEFAULT statement_timestamp()
+table.sql:85: created_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+table.sql:95: active_flag char(1) DEFAULT 'Y',
+table.sql:96: created_date timestamp(0) DEFAULT statement_timestamp(),
+table.sql:97: updated_timestamp TIMESTAMP(6) DEFAULT statement_timestamp()
+
+===== 3. Sequences and nextval =====
+package.sql:82: nextval('seq_migration_audit'),
+procedure.sql:62: nextval('seq_migration_audit'),
+procedure.sql:86: nextval('seq_migration_audit'),
+sequence.sql:13: CREATE SEQUENCE seq_claim INCREMENT 1 MINVALUE 1 NO MAXVALUE START 111201 CACHE 100;
+sequence.sql:14: CREATE SEQUENCE seq_claim_detail INCREMENT 1 MINVALUE 1 NO MAXVALUE START 263896 CACHE 100;
+sequence.sql:15: CREATE SEQUENCE seq_fee_schedule INCREMENT 1 MINVALUE 1 NO MAXVALUE START 2221 CACHE 20;
+sequence.sql:16: CREATE SEQUENCE seq_fee_schedule_detail INCREMENT 1 MINVALUE 1 NO MAXVALUE START 222221 CACHE 20;
+sequence.sql:17: CREATE SEQUENCE seq_member INCREMENT 1 MINVALUE 1 NO MAXVALUE START 22241 CACHE 20;
+sequence.sql:18: CREATE SEQUENCE seq_migration_audit INCREMENT 1 MINVALUE 1 NO MAXVALUE START 21 CACHE 20;
+sequence.sql:19: CREATE SEQUENCE seq_provider INCREMENT 1 MINVALUE 1 NO MAXVALUE START 2241 CACHE 20;
+trigger.sql:14: BEGIN NEW.claim_id := nextval('seq_claim');RETURN NEW;
+trigger.sql:27: BEGIN NEW.claim_detail_id := nextval('seq_claim_detail');RETURN NEW;
+trigger.sql:40: BEGIN NEW.schedule_id := nextval('seq_fee_schedule');RETURN NEW;
+trigger.sql:53: BEGIN NEW.schedule_detail_id := nextval('seq_fee_schedule_detail');RETURN NEW;
+trigger.sql:66: BEGIN NEW.member_id := nextval('seq_member');RETURN NEW;
+trigger.sql:79: BEGIN NEW.audit_id := nextval('seq_migration_audit');RETURN NEW;
+trigger.sql:92: BEGIN NEW.provider_id := nextval('seq_provider');RETURN NEW;
+
+===== 4. Triggers =====
+trigger.sql:13: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_claim_bi() RETURNS trigger AS $BODY$
+trigger.sql:20: CREATE TRIGGER trg_claim_bi
+trigger.sql:23: EXECUTE PROCEDURE miglab.trigger_fct_trg_claim_bi();
+trigger.sql:26: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_claim_detail_bi() RETURNS trigger AS $BODY$
+trigger.sql:33: CREATE TRIGGER trg_claim_detail_bi
+trigger.sql:36: EXECUTE PROCEDURE miglab.trigger_fct_trg_claim_detail_bi();
+trigger.sql:39: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_fee_schedule_bi() RETURNS trigger AS $BODY$
+trigger.sql:46: CREATE TRIGGER trg_fee_schedule_bi
+trigger.sql:49: EXECUTE PROCEDURE miglab.trigger_fct_trg_fee_schedule_bi();
+trigger.sql:52: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_fee_schedule_detail_bi() RETURNS trigger AS $BODY$
+trigger.sql:59: CREATE TRIGGER trg_fee_schedule_detail_bi
+trigger.sql:62: EXECUTE PROCEDURE miglab.trigger_fct_trg_fee_schedule_detail_bi();
+trigger.sql:65: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_member_bi() RETURNS trigger AS $BODY$
+trigger.sql:72: CREATE TRIGGER trg_member_bi
+trigger.sql:75: EXECUTE PROCEDURE miglab.trigger_fct_trg_member_bi();
+trigger.sql:78: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_migration_audit_bi() RETURNS trigger AS $BODY$
+trigger.sql:85: CREATE TRIGGER trg_migration_audit_bi
+trigger.sql:88: EXECUTE PROCEDURE miglab.trigger_fct_trg_migration_audit_bi();
+trigger.sql:91: CREATE OR REPLACE FUNCTION miglab.trigger_fct_trg_provider_bi() RETURNS trigger AS $BODY$
+trigger.sql:98: CREATE TRIGGER trg_provider_bi
+trigger.sql:101: EXECUTE PROCEDURE miglab.trigger_fct_trg_provider_bi();
+
+===== 5. NO_DATA_FOUND / STRICT =====
+function.sql:23: INTO STRICT l_balance FROM claim WHERE claim_id=p_claim_id;
+function.sql:25: EXCEPTION WHEN no_data_found THEN RETURN NULL;
+procedure.sql:28: INTO STRICT l_billed,
+
+===== 6. Row-count logic =====
+procedure.sql:19: ora2pg_rowcount int;
+procedure.sql:44: GET DIAGNOSTICS ora2pg_rowcount = ROW_COUNT;
+procedure.sql:45: IF ora2pg_rowcount = 0 THEN
+
+===== 7. Error handling =====
+function.sql:25: EXCEPTION WHEN no_data_found THEN RETURN NULL;
+package.sql:129: EXCEPTION
+package.sql:137: SUBSTR(SQLERRM,1,4000)
+package.sql:140: RAISE;
+procedure.sql:46: RAISE EXCEPTION '%', 'Claim ID ' || p_claim_id || ' does not exist'
+procedure.sql:71: EXCEPTION
+procedure.sql:74: l_message := SUBSTR(SQLERRM,1,4000);
+procedure.sql:95: RAISE;
+
+===== 8. MERGE / upsert =====
+package.sql:53: MERGE INTO migration_audit a
+package.sql:163: -- MERGE => 1
+
+===== 9. NULL handling =====
+function.sql:22: SELECT coalesce(total_billed,0)-coalesce(total_allowed,0)
+procedure.sql:26: SELECT coalesce(SUM(billed_amount),0),
+procedure.sql:27: coalesce(SUM(allowed_amount),0)
+trigger.sql:22: WHEN (NEW.claim_id IS NULL)
+trigger.sql:35: WHEN (NEW.claim_detail_id IS NULL)
+trigger.sql:48: WHEN (NEW.schedule_id IS NULL)
+trigger.sql:61: WHEN (NEW.schedule_detail_id IS NULL)
+trigger.sql:74: WHEN (NEW.member_id IS NULL)
+trigger.sql:87: WHEN (NEW.audit_id IS NULL)
+trigger.sql:100: WHEN (NEW.provider_id IS NULL)
+view.sql:14: coalesce(fs.termination_date, timestamp(0) '2999-12-31') effective_end_date,
+view.sql:16: coalesce(AVG(fsd.allowed_amount),0) average_allowed_amount
+view.sql:27: coalesce(c.total_billed,0) total_billed,
+view.sql:28: coalesce(c.total_allowed,0) total_allowed,
+view.sql:29: coalesce(c.total_billed,0)-coalesce(c.total_allowed,0) adjustment_amount
+
+===== 10. Oracle syntax left behind =====
+(no matches)
+
+===== 11. Tool comments and warnings =====
+function.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+package.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+procedure.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+procedure.sql:19: ora2pg_rowcount int;
+procedure.sql:44: GET DIAGNOSTICS ora2pg_rowcount = ROW_COUNT;
+procedure.sql:45: IF ora2pg_rowcount = 0 THEN
+sequence.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+sequence_values.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+CONSTRAINTS_table.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+FKEYS_table.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+INDEXES_table.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+table.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+trigger.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0
+view.sql:1: -- Generated by Ora2Pg, the Oracle database Schema converter, version 25.0

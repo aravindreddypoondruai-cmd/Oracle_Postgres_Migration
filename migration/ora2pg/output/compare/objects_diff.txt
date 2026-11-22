@@ -1,0 +1,24 @@
+﻿diff --git "a/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\objects_miglabdb.txt" "b/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\objects_miglab_ora2pg.txt"
+index 9944ba7..89a152c 100644
+--- "a/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\objects_miglabdb.txt"
++++ "b/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\objects_miglab_ora2pg.txt"
+@@ -5,15 +5,15 @@
+  constraints n                | 22
+  constraints p                |  7
+  constraints u                |  5
+- identity columns             |  7
++ identity columns             |  0
+  indexes                      | 20
+- routines miglab (f)          |  1
++ routines miglab (f)          |  8
+  routines miglab (p)          |  1
+  routines pkg_claim_admin (f) |  1
+  routines pkg_claim_admin (p) |  2
+- standalone sequences         |  0
++ standalone sequences         |  7
+  tables                       |  7
+- user triggers                |  0
++ user triggers                |  7
+  views                        |  2
+ (15 rows)
+ 

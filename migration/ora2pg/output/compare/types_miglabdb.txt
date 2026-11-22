@@ -1,0 +1,80 @@
+﻿      table_name       |      column_name       |          data_type          | size | is_nullable | is_identity |       column_default        
+-----------------------+------------------------+-----------------------------+------+-------------+-------------+-----------------------------
+ claim                 | claim_id               | bigint                      | 64,0 | NO          | YES         | 
+ claim                 | claim_number           | character varying           | 30   | NO          | NO          | 
+ claim                 | member_id              | bigint                      | 64,0 | NO          | NO          | 
+ claim                 | provider_id            | bigint                      | 64,0 | NO          | NO          | 
+ claim                 | service_date           | date                        | 0    | NO          | NO          | 
+ claim                 | received_date          | timestamp without time zone | 0    | YES         | NO          | LOCALTIMESTAMP(0)
+ claim                 | claim_status           | character varying           | 20   | YES         | NO          | 
+ claim                 | total_billed           | numeric                     | 14,2 | YES         | NO          | 
+ claim                 | total_allowed          | numeric                     | 14,2 | YES         | NO          | 
+ claim                 | created_timestamp      | timestamp without time zone | 6    | YES         | NO          | LOCALTIMESTAMP
+ claim_detail          | claim_detail_id        | bigint                      | 64,0 | NO          | YES         | 
+ claim_detail          | claim_id               | bigint                      | 64,0 | NO          | NO          | 
+ claim_detail          | line_number            | integer                     | 32,0 | NO          | NO          | 
+ claim_detail          | procedure_code         | character varying           | 20   | YES         | NO          | 
+ claim_detail          | modifier_code          | character varying           | 10   | YES         | NO          | 
+ claim_detail          | billed_amount          | numeric                     | 12,2 | YES         | NO          | 
+ claim_detail          | allowed_amount         | numeric                     | 12,2 | YES         | NO          | 
+ fee_schedule          | schedule_id            | bigint                      | 64,0 | NO          | YES         | 
+ fee_schedule          | schedule_code          | character varying           | 30   | NO          | NO          | 
+ fee_schedule          | schedule_name          | character varying           | 150  | YES         | NO          | 
+ fee_schedule          | effective_date         | date                        | 0    | NO          | NO          | 
+ fee_schedule          | termination_date       | date                        | 0    | YES         | NO          | 
+ fee_schedule          | status                 | character varying           | 20   | YES         | NO          | 'ACTIVE'::character varying
+ fee_schedule          | description            | text                        |      | YES         | NO          | 
+ fee_schedule          | created_date           | timestamp without time zone | 0    | YES         | NO          | LOCALTIMESTAMP(0)
+ fee_schedule          | updated_timestamp      | timestamp without time zone | 6    | YES         | NO          | LOCALTIMESTAMP
+ fee_schedule_detail   | schedule_detail_id     | bigint                      | 64,0 | NO          | YES         | 
+ fee_schedule_detail   | schedule_id            | bigint                      | 64,0 | NO          | NO          | 
+ fee_schedule_detail   | procedure_code         | character varying           | 20   | NO          | NO          | 
+ fee_schedule_detail   | modifier_code          | character varying           | 10   | YES         | NO          | 
+ fee_schedule_detail   | allowed_amount         | numeric                     | 12,2 | NO          | NO          | 
+ fee_schedule_detail   | effective_date         | date                        | 0    | NO          | NO          | 
+ fee_schedule_detail   | termination_date       | date                        | 0    | YES         | NO          | 
+ member                | member_id              | bigint                      | 64,0 | NO          | YES         | 
+ member                | member_number          | character varying           | 30   | NO          | NO          | 
+ member                | first_name             | character varying           | 100  | YES         | NO          | 
+ member                | last_name              | character varying           | 100  | YES         | NO          | 
+ member                | date_of_birth          | date                        | 0    | YES         | NO          | 
+ member                | state_code             | character varying           | 2    | YES         | NO          | 
+ member                | active_flag            | character                   | 1    | YES         | NO          | 'Y'::bpchar
+ member                | created_date           | timestamp without time zone | 0    | YES         | NO          | LOCALTIMESTAMP(0)
+ migration_audit       | audit_id               | bigint                      | 64,0 | NO          | YES         | 
+ migration_audit       | process_name           | character varying           | 100  | YES         | NO          | 
+ migration_audit       | source_count           | bigint                      | 64,0 | YES         | NO          | 
+ migration_audit       | target_count           | bigint                      | 64,0 | YES         | NO          | 
+ migration_audit       | status                 | character varying           | 20   | YES         | NO          | 
+ migration_audit       | message                | character varying           | 4000 | YES         | NO          | 
+ migration_audit       | created_timestamp      | timestamp without time zone | 6    | YES         | NO          | LOCALTIMESTAMP
+ provider              | provider_id            | bigint                      | 64,0 | NO          | YES         | 
+ provider              | provider_code          | character varying           | 20   | NO          | NO          | 
+ provider              | provider_name          | character varying           | 150  | NO          | NO          | 
+ provider              | specialty              | character varying           | 100  | YES         | NO          | 
+ provider              | state_code             | character varying           | 2    | YES         | NO          | 
+ provider              | active_flag            | character                   | 1    | YES         | NO          | 'Y'::bpchar
+ provider              | created_date           | timestamp without time zone | 0    | YES         | NO          | LOCALTIMESTAMP(0)
+ provider              | updated_timestamp      | timestamp without time zone | 6    | YES         | NO          | LOCALTIMESTAMP
+ v_active_fee_schedule | schedule_id            | bigint                      | 64,0 | YES         | NO          | 
+ v_active_fee_schedule | schedule_code          | character varying           | 30   | YES         | NO          | 
+ v_active_fee_schedule | schedule_name          | character varying           | 150  | YES         | NO          | 
+ v_active_fee_schedule | effective_date         | date                        | 0    | YES         | NO          | 
+ v_active_fee_schedule | termination_date       | date                        | 0    | YES         | NO          | 
+ v_active_fee_schedule | effective_end_date     | date                        | 0    | YES         | NO          | 
+ v_active_fee_schedule | status                 | character varying           | 20   | YES         | NO          | 
+ v_active_fee_schedule | detail_count           | bigint                      | 64,0 | YES         | NO          | 
+ v_active_fee_schedule | average_allowed_amount | numeric                     |      | YES         | NO          | 
+ v_claim_summary       | claim_id               | bigint                      | 64,0 | YES         | NO          | 
+ v_claim_summary       | claim_number           | character varying           | 30   | YES         | NO          | 
+ v_claim_summary       | member_number          | character varying           | 30   | YES         | NO          | 
+ v_claim_summary       | provider_code          | character varying           | 20   | YES         | NO          | 
+ v_claim_summary       | provider_name          | character varying           | 150  | YES         | NO          | 
+ v_claim_summary       | service_date           | date                        | 0    | YES         | NO          | 
+ v_claim_summary       | claim_status           | character varying           | 20   | YES         | NO          | 
+ v_claim_summary       | status_description     | text                        |      | YES         | NO          | 
+ v_claim_summary       | total_billed           | numeric                     |      | YES         | NO          | 
+ v_claim_summary       | total_allowed          | numeric                     |      | YES         | NO          | 
+ v_claim_summary       | adjustment_amount      | numeric                     |      | YES         | NO          | 
+(76 rows)
+

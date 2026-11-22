@@ -1,0 +1,251 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type TEST'
+[TEST COLUMNS COUNT]
+ORACLEDB:CLAIM:10
+POSTGRES:miglab.claim:10
+ORACLEDB:CLAIM_DETAIL:7
+POSTGRES:miglab.claim_detail:7
+ORACLEDB:FEE_SCHEDULE:9
+POSTGRES:miglab.fee_schedule:9
+ORACLEDB:FEE_SCHEDULE_DETAIL:7
+POSTGRES:miglab.fee_schedule_detail:7
+ORACLEDB:MEMBER:8
+POSTGRES:miglab.member:8
+ORACLEDB:MIGRATION_AUDIT:7
+POSTGRES:miglab.migration_audit:7
+ORACLEDB:PROVIDER:8
+POSTGRES:miglab.provider:8
+[ERRORS COLUMNS COUNT]
+OK, Oracle and PostgreSQL have the same number of columns.
+[TEST INDEXES COUNT]
+ORACLEDB:CLAIM:6
+POSTGRES:miglab.claim:6
+ORACLEDB:CLAIM_DETAIL:3
+POSTGRES:miglab.claim_detail:3
+ORACLEDB:FEE_SCHEDULE:2
+POSTGRES:miglab.fee_schedule:2
+ORACLEDB:FEE_SCHEDULE_DETAIL:3
+POSTGRES:miglab.fee_schedule_detail:3
+ORACLEDB:MEMBER:2
+POSTGRES:miglab.member:2
+ORACLEDB:MIGRATION_AUDIT:1
+POSTGRES:miglab.migration_audit:1
+ORACLEDB:PROVIDER:3
+POSTGRES:miglab.provider:3
+[ERRORS INDEXES COUNT]
+OK, Oracle and PostgreSQL have the same number of indexes.
+
+[TEST UNIQUE CONSTRAINTS COUNT]
+ORACLEDB:CLAIM:1
+POSTGRES:miglab.claim:1
+ORACLEDB:CLAIM_DETAIL:1
+POSTGRES:miglab.claim_detail:1
+ORACLEDB:FEE_SCHEDULE:1
+POSTGRES:miglab.fee_schedule:1
+ORACLEDB:FEE_SCHEDULE_DETAIL:0
+POSTGRES:miglab.fee_schedule_detail:0
+ORACLEDB:MEMBER:1
+POSTGRES:miglab.member:1
+ORACLEDB:MIGRATION_AUDIT:0
+POSTGRES:miglab.migration_audit:0
+ORACLEDB:PROVIDER:1
+POSTGRES:miglab.provider:1
+[ERRORS UNIQUE CONSTRAINTS COUNT]
+OK, Oracle and PostgreSQL have the same number of unique constraints.
+
+[TEST PRIMARY KEYS COUNT]
+ORACLEDB:CLAIM:1
+POSTGRES:miglab.claim:1
+ORACLEDB:CLAIM_DETAIL:1
+POSTGRES:miglab.claim_detail:1
+ORACLEDB:FEE_SCHEDULE:1
+POSTGRES:miglab.fee_schedule:1
+ORACLEDB:FEE_SCHEDULE_DETAIL:1
+POSTGRES:miglab.fee_schedule_detail:1
+ORACLEDB:MEMBER:1
+POSTGRES:miglab.member:1
+ORACLEDB:MIGRATION_AUDIT:1
+POSTGRES:miglab.migration_audit:1
+ORACLEDB:PROVIDER:1
+POSTGRES:miglab.provider:1
+[ERRORS PRIMARY KEYS COUNT]
+OK, Oracle and PostgreSQL have the same number of primary keys.
+
+[TEST CHECK CONSTRAINTS COUNT]
+ORACLEDB:CLAIM:1
+POSTGRES:miglab.claim:1
+ORACLEDB:CLAIM_DETAIL:0
+POSTGRES:miglab.claim_detail:0
+ORACLEDB:FEE_SCHEDULE:1
+POSTGRES:miglab.fee_schedule:1
+ORACLEDB:FEE_SCHEDULE_DETAIL:0
+POSTGRES:miglab.fee_schedule_detail:0
+ORACLEDB:MEMBER:1
+POSTGRES:miglab.member:1
+ORACLEDB:MIGRATION_AUDIT:0
+POSTGRES:miglab.migration_audit:0
+ORACLEDB:PROVIDER:1
+POSTGRES:miglab.provider:1
+[ERRORS CHECK CONSTRAINTS COUNT]
+OK, Oracle and PostgreSQL have the same number of check constraints.
+
+[TEST NOT NULL CONSTRAINTS COUNT]
+ORACLEDB:CLAIM:5
+POSTGRES:miglab.claim:5
+ORACLEDB:CLAIM_DETAIL:3
+POSTGRES:miglab.claim_detail:3
+ORACLEDB:FEE_SCHEDULE:3
+POSTGRES:miglab.fee_schedule:3
+ORACLEDB:FEE_SCHEDULE_DETAIL:5
+POSTGRES:miglab.fee_schedule_detail:5
+ORACLEDB:MEMBER:2
+POSTGRES:miglab.member:2
+ORACLEDB:MIGRATION_AUDIT:1
+POSTGRES:miglab.migration_audit:1
+ORACLEDB:PROVIDER:3
+POSTGRES:miglab.provider:3
+[ERRORS NOT NULL CONSTRAINTS COUNT]
+OK, Oracle and PostgreSQL have the same number of not null constraints.
+
+[TEST COLUMN DEFAULT VALUE COUNT]
+ORACLEDB:CLAIM:2
+POSTGRES:miglab.claim:2
+ORACLEDB:CLAIM_DETAIL:0
+POSTGRES:miglab.claim_detail:0
+ORACLEDB:FEE_SCHEDULE:3
+POSTGRES:miglab.fee_schedule:3
+ORACLEDB:FEE_SCHEDULE_DETAIL:0
+POSTGRES:miglab.fee_schedule_detail:0
+ORACLEDB:MEMBER:2
+POSTGRES:miglab.member:2
+ORACLEDB:MIGRATION_AUDIT:1
+POSTGRES:miglab.migration_audit:1
+ORACLEDB:PROVIDER:3
+POSTGRES:miglab.provider:3
+[ERRORS COLUMN DEFAULT VALUE COUNT]
+OK, Oracle and PostgreSQL have the same number of column default value.
+
+[TEST FOREIGN KEYS COUNT]
+ORACLEDB:CLAIM:2
+POSTGRES:miglab.claim:2
+ORACLEDB:CLAIM_DETAIL:1
+POSTGRES:miglab.claim_detail:1
+ORACLEDB:FEE_SCHEDULE:0
+POSTGRES:miglab.fee_schedule:0
+ORACLEDB:FEE_SCHEDULE_DETAIL:1
+POSTGRES:miglab.fee_schedule_detail:1
+ORACLEDB:MEMBER:0
+POSTGRES:miglab.member:0
+ORACLEDB:MIGRATION_AUDIT:0
+POSTGRES:miglab.migration_audit:0
+ORACLEDB:PROVIDER:0
+POSTGRES:miglab.provider:0
+[ERRORS FOREIGN KEYS COUNT]
+OK, Oracle and PostgreSQL have the same number of foreign keys.
+
+[TEST PARTITION COUNT]
+[ERRORS PARTITION COUNT]
+OK, Oracle and PostgreSQL have the same number of PARTITION.
+
+[TEST TABLE COUNT]
+ORACLEDB:TABLE:7
+POSTGRES:TABLE:7
+[ERRORS TABLE COUNT]
+OK, Oracle and PostgreSQL have the same number of TABLE.
+
+[TEST TABLE TRIGGERS COUNT]
+ORACLEDB:CLAIM:1
+POSTGRES:miglab.claim:1
+ORACLEDB:CLAIM_DETAIL:1
+POSTGRES:miglab.claim_detail:1
+ORACLEDB:FEE_SCHEDULE:1
+POSTGRES:miglab.fee_schedule:1
+ORACLEDB:FEE_SCHEDULE_DETAIL:1
+POSTGRES:miglab.fee_schedule_detail:1
+ORACLEDB:MEMBER:1
+POSTGRES:miglab.member:1
+ORACLEDB:MIGRATION_AUDIT:1
+POSTGRES:miglab.migration_audit:1
+ORACLEDB:PROVIDER:1
+POSTGRES:miglab.provider:1
+[ERRORS TABLE TRIGGERS COUNT]
+OK, Oracle and PostgreSQL have the same number of table triggers.
+
+[TEST TRIGGER COUNT]
+ORACLEDB:TRIGGER:7
+POSTGRES:TRIGGER:7
+[ERRORS TRIGGER COUNT]
+OK, Oracle and PostgreSQL have the same number of TRIGGER.
+
+[TEST VIEW COUNT]
+ORACLEDB:VIEW:2
+POSTGRES:VIEW:2
+[ERRORS VIEW COUNT]
+OK, Oracle and PostgreSQL have the same number of VIEW.
+
+[TEST MVIEW COUNT]
+ORACLEDB:MVIEW:0
+POSTGRES:MVIEW:0
+[ERRORS MVIEW COUNT]
+OK, Oracle and PostgreSQL have the same number of MVIEW.
+
+[TEST SEQUENCE COUNT]
+ORACLEDB:SEQUENCE:7
+POSTGRES:SEQUENCE:7
+[ERRORS SEQUENCE COUNT]
+OK, Oracle and PostgreSQL have the same number of SEQUENCE.
+
+[TEST TYPE COUNT]
+ORACLEDB:TYPE:0
+POSTGRES:TYPE:0
+[ERRORS TYPE COUNT]
+OK, Oracle and PostgreSQL have the same number of TYPE.
+
+[TEST FDW COUNT]
+ORACLEDB:FDW:0
+POSTGRES:FDW:0
+[ERRORS FDW COUNT]
+OK, Oracle and PostgreSQL have the same number of FDW.
+
+[TEST FUNCTION COUNT]
+ORACLEDB:FUNCTION:5
+POSTGRES:FUNCTION:12
+[ERRORS FUNCTION COUNT]
+DIFF: FUNCTION does not have the same count in source database (5) and in PostgreSQL (12).
+DIFF: Function miglab.trigger_fct_trg_fee_schedule_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_claim_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_fee_schedule_detail_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_provider_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_claim_detail_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_member_bi is in addition in PostgreSQL database.
+DIFF: Function miglab.trigger_fct_trg_migration_audit_bi is in addition in PostgreSQL database.
+
+
+[TEST SEQUENCE VALUES]
+ORACLEDB:SEQ_CLAIM:111201
+POSTGRES:miglab.seq_claim:111202
+ORACLEDB:SEQ_CLAIM_DETAIL:263896
+POSTGRES:miglab.seq_claim_detail:263897
+ORACLEDB:SEQ_FEE_SCHEDULE:2221
+POSTGRES:miglab.seq_fee_schedule:2222
+ORACLEDB:SEQ_FEE_SCHEDULE_DETAIL:222221
+POSTGRES:miglab.seq_fee_schedule_detail:222222
+ORACLEDB:SEQ_MEMBER:22241
+POSTGRES:miglab.seq_member:22242
+ORACLEDB:SEQ_MIGRATION_AUDIT:21
+POSTGRES:miglab.seq_migration_audit:22
+ORACLEDB:SEQ_PROVIDER:2241
+POSTGRES:miglab.seq_provider:2242
+[ERRORS SEQUENCE VALUES COUNT]
+DIFF: Sequence miglab.seq_claim doesn't have the same value in source database (111201) and in PostgreSQL (111202). Verify +/- cache size: 100.
+DIFF: Sequence miglab.seq_claim_detail doesn't have the same value in source database (263896) and in PostgreSQL (263897). Verify +/- cache size: 100.
+DIFF: Sequence miglab.seq_fee_schedule doesn't have the same value in source database (2221) and in PostgreSQL (2222). Verify +/- cache size: 20.
+DIFF: Sequence miglab.seq_fee_schedule_detail doesn't have the same value in source database (222221) and in PostgreSQL (222222). Verify +/- cache size: 20.
+DIFF: Sequence miglab.seq_member doesn't have the same value in source database (22241) and in PostgreSQL (22242). Verify +/- cache size: 20.
+DIFF: Sequence miglab.seq_migration_audit doesn't have the same value in source database (21) and in PostgreSQL (22). Verify +/- cache size: 20.
+DIFF: Sequence miglab.seq_provider doesn't have the same value in source database (2241) and in PostgreSQL (2242). Verify +/- cache size: 20.
+

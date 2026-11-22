@@ -1,0 +1,229 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type SHOW_REPORT --estimate_cost --dump_as_html'
+<!DOCTYPE html>
+<html>
+  <head>
+  <title>Ora2Pg - Database Migration Report</title>
+  <meta HTTP-EQUIV="Generator" CONTENT="Ora2Pg v25.0">
+  <meta HTTP-EQUIV="Date" CONTENT="Sun Nov 22 08:22:05 2026">
+  <style>
+body {
+	margin: 30px 0;
+	padding: 0;
+	background: #EFEFEF;
+	font-size: 12px;
+	color: #1e1e1e;
+}
+
+h1 {
+	margin-bottom: 20px;
+	border-bottom: 1px solid #DFDFDF;
+	font-size: 22px;
+	padding: 0px;
+	padding-bottom: 5px;
+	font-weight: bold;
+	color: #0094C7;
+}
+
+h2 {
+	margin-bottom: 10px;
+	font-size: 18px;
+	padding: 0px;
+	padding-bottom: 5px;
+	font-weight: bold;
+	color: #0094C7;
+}
+
+#header table {
+	padding: 0 5px 0 5px;
+	border: 1px solid #DBDBDB;
+	margin-bottom: 20px;
+	margin-left: 30px;
+}
+
+#header th {
+	padding: 0 5px 0 5px;
+	text-decoration: none;
+	font-size: 16px;
+	color: #EC5800;
+}
+
+#content table {
+	padding: 0 5px 0 5px;
+	border: 1px solid #DBDBDB;
+	margin-bottom: 20px;
+	margin-left: 10px;
+	margin-right: 10px;
+}
+#content td {
+	padding: 0 5px 0 5px;
+	border-bottom: 1px solid #888888;
+	margin-bottom: 20px;
+	text-align: left;
+	vertical-align: top;
+}
+
+#content th {
+	border-bottom: 1px solid #BBBBBB;
+	padding: 0 5px 0 5px;
+	text-decoration: none;
+	font-size: 16px;
+	color: #EC5800;
+}
+
+.object_name {
+        font-weight: bold;
+        color: #0094C7;
+	text-align: left;
+	white-space: pre;
+}
+
+.detail {
+	white-space: pre;
+}
+
+#footer {
+	margin-right: 10px;
+	text-align: right;
+}
+
+#footer a {
+	color: #EC5800;
+}
+
+#footer a:hover {
+	text-decoration: none;
+}
+  </style>
+</head>
+<body>
+<div id="header">
+<h1>Ora2Pg - Database Migration Report</h1>
+<table>
+<tr><th>Version</th><td>Oracle AI Database 26ai Free Release 23.26.3.0.0</td></tr>
+<tr><th>Schema</th><td>MIGLAB</td></tr>
+<tr><th>Size</th><td>39.44 MB</td></tr>
+</table>
+</div>
+<div id="content">
+<table>
+<tr><th>Object</th><th>Number</th><th>Invalid</th><th>Estimated cost</th><th>Comments</th><th>Details</th></tr>
+<tr><td class="object_name">DATABASE LINK</td><td style="text-align: center;">0</td><td style="text-align: center;">0</td><td style="text-align: center;">0.00</td><td>Database links will be exported as SQL/MED PostgreSQL's Foreign Data Wrapper (FDW) extensions using oracle_fdw.</td><td class="detail"></td></tr>
+<tr><td class="object_name">FUNCTION</td><td style="text-align: center;">1</td><td style="text-align: center;">0</td><td style="text-align: center;">4.00</td><td>Total size of function code: 470 bytes.</td><td class="detail"><details><summary>See details</summary>fn_claim_balance: 3<br></details></td></tr>
+<tr><td class="object_name">GLOBAL TEMPORARY TABLE</td><td style="text-align: center;">0</td><td style="text-align: center;">0</td><td style="text-align: center;">0.00</td><td>Global temporary table are not supported by PostgreSQL and will not be exported. You will have to rewrite some application code to match the PostgreSQL temporary table behavior.</td><td class="detail"></td></tr>
+<tr><td class="object_name">INDEX</td><td style="text-align: center;">20</td><td style="text-align: center;">0</td><td style="text-align: center;">2.80</td><td>8 index(es) are concerned by the export, others are automatically generated and will do so on PostgreSQL. Bitmap will be exported as btree_gin index(es). Domain index are exported as b-tree but commented to be edited to mainly use FTS. Cluster, bitmap join and IOT indexes will not be exported at all. Reverse indexes are not exported too, you may use a trigram-based index (see pg_trgm) or a reverse() function based index and search. Use 'varchar_pattern_ops', 'text_pattern_ops' or 'bpchar_pattern_ops' operators in your indexes to improve search with the LIKE operator respectively into varchar, text or char columns.</td><td class="detail"><details><summary>See details</summary>8 b-tree index(es)<br></details></td></tr>
+<tr><td class="object_name">JOB</td><td style="text-align: center;">0</td><td style="text-align: center;">0</td><td style="text-align: center;">0.00</td><td>Job are not exported. You may set external cron job with them.</td><td class="detail"></td></tr>
+<tr><td class="object_name">PACKAGE BODY</td><td style="text-align: center;">1</td><td style="text-align: center;">0</td><td style="text-align: center;">15.20</td><td>Total size of package code: 2912 bytes. Number of procedures and functions found inside those packages: 3.</td><td class="detail"><details><summary>See details</summary>pkg_claim_admin.get_status_label: 3<br>pkg_claim_admin.recalculate_open_claims: 3<br>pkg_claim_admin.upsert_audit: 3.2<br></details></td></tr>
+<tr><td class="object_name">PROCEDURE</td><td style="text-align: center;">1</td><td style="text-align: center;">0</td><td style="text-align: center;">4.20</td><td>Total size of procedure code: 1966 bytes.</td><td class="detail"><details><summary>See details</summary>pr_recalculate_claim: 3.2<br></details></td></tr>
+<tr><td class="object_name">SEQUENCE</td><td style="text-align: center;">7</td><td style="text-align: center;">0</td><td style="text-align: center;">1.00</td><td>Sequences are fully supported, but all call to sequence_name.NEXTVAL or sequence_name.CURRVAL will be transformed into NEXTVAL('sequence_name') or CURRVAL('sequence_name').</td><td class="detail"></td></tr>
+<tr><td class="object_name">SYNONYM</td><td style="text-align: center;">0</td><td style="text-align: center;">0</td><td style="text-align: center;">0.00</td><td>SYNONYMs will be exported as views. SYNONYMs do not exists with PostgreSQL but a common workaround is to use views or set the PostgreSQL search_path in your session to access object outside the current schema.</td><td class="detail"></td></tr>
+<tr><td class="object_name">TABLE</td><td style="text-align: center;">7</td><td style="text-align: center;">0</td><td style="text-align: center;">1.40</td><td> 4 check constraint(s).</td><td class="detail"><details><summary>See details</summary>Total number of rows: 236501<br>Top 10 of tables sorted by number of rows:<br>claim_detail has 150000 rows<br>claim has 50000 rows<br>fee_schedule_detail has 25000 rows<br>member has 10000 rows<br>provider has 1000 rows<br>fee_schedule has 500 rows<br>migration_audit has 1 rows<br>Top 10 of largest tables:<br></details></td></tr>
+<tr><td class="object_name">TRIGGER</td><td style="text-align: center;">7</td><td style="text-align: center;">0</td><td style="text-align: center;">28.00</td><td>Total size of trigger code: 0 bytes.</td><td class="detail"><details><summary>See details</summary>trg_provider_bi: 3<br>trg_member_bi: 3<br>trg_fee_schedule_bi: 3<br>trg_fee_schedule_detail_bi: 3<br>trg_claim_bi: 3<br>trg_claim_detail_bi: 3<br>trg_migration_audit_bi: 3<br></details></td></tr>
+<tr><td class="object_name">VIEW</td><td style="text-align: center;">2</td><td style="text-align: center;">0</td><td style="text-align: center;">2.00</td><td>Views are fully supported but can use specific functions.</td><td class="detail"></td></tr>
+<tr><th style="text-align: center; border-bottom: 0px; vertical-align: bottom;">Total</th><td style="text-align: center; border-bottom: 0px; vertical-align: bottom;">46</td><td style="text-align: center; border-bottom: 0px; vertical-align: bottom;">0</td><td style="text-align: center; border-bottom: 0px; vertical-align: bottom;">58.60</td><td colspan="2" style="border-bottom: 0px; vertical-align: bottom;">58.60 cost migration units means approximatively 1 person-day(s). The migration unit was set to 5 minute(s)
+</td></tr>
+</table>
+</div>
+<h2>Migration level: B-5</h2>
+
+<ul>
+<li>Migration levels:</li>
+  <ul>
+    <li>A - Migration that might be run automatically</li>
+    <li>B - Migration with code rewrite and a human-days cost up to 5 days</li>
+    <li>C - Migration with code rewrite and a human-days cost above 5 days</li>
+  </ul>
+<li>Technical levels:</li>
+  <ul>
+    <li>1 = trivial: no stored functions and no triggers</li>
+    <li>2 = easy: no stored functions but with triggers, no manual rewriting</li>
+    <li>3 = simple: stored functions and/or triggers, no manual rewriting</li>
+    <li>4 = manual: no stored functions but with triggers or views with code rewriting</li>
+    <li>5 = difficult: stored functions and/or triggers with code rewriting</li>
+  </ul>
+</ul>
+<h2>Details of cost assessment per function</h2>
+<details><summary>Show</summary><ul>
+<li>Function fn_claim_balance total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+</ul></details>
+<h2>Details of cost assessment per procedure</h2>
+<details><summary>Show</summary><ul>
+<li>Procedure pr_recalculate_claim total estimated cost: 3.2</li>
+<ul>
+<li>TEST => 2</li>
+<li>CONCAT => 2 (cost: 0.1)</li>
+<li>SIZE => 1</li>
+</ul>
+</ul></details>
+<h2>Details of cost assessment per package function</h2>
+<details><summary>Show</summary><ul>
+<li>Function pkg_claim_admin.upsert_audit total estimated cost: 3.2</li>
+<ul>
+<li>TEST => 2</li>
+<li>TRUNC => 2 (cost: 0.1)</li>
+<li>MERGE => 1</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Function pkg_claim_admin.recalculate_open_claims total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Function pkg_claim_admin.get_status_label total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+</ul></details>
+<h2>Details of cost assessment per trigger</h2>
+<details><summary>Show</summary><ul>
+<li>Trigger trg_claim_detail_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_claim_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_fee_schedule_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_provider_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_member_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_fee_schedule_detail_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+<li>Trigger trg_migration_audit_bi total estimated cost: 3</li>
+<ul>
+<li>TEST => 2</li>
+<li>SIZE => 1</li>
+</ul>
+</ul></details>
+
+<div id="footer">
+Generated by <a href="http://ora2pg.darold.net/">Ora2Pg v25.0</a>
+</div>
+</body>
+</html>

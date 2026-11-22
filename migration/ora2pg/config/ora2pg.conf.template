@@ -1,0 +1,69 @@
+#############################################################################
+# Ora2Pg 25.0 configuration - MIGLAB capstone, Phase 5
+# This TEMPLATE is committed to Git. 00_make_config.ps1 creates ora2pg.conf
+# (git-ignored) by replacing the <...> placeholders from environment variables.
+# Avoid '#' and spaces in lab passwords used here.
+#############################################################################
+ 
+#------------------------------ Oracle source -------------------------------
+# Container name works because Ora2Pg runs on miglab-net
+ORACLE_DSN          dbi:Oracle:host=oracle-source;service_name=FREEPDB1;port=1521
+ORACLE_USER         MIGLAB
+ORACLE_PWD          <ORACLE_MIGLAB_PASSWORD>
+# Connecting as a normal user: read ALL_* views instead of DBA_* views
+USER_GRANTS         1
+NLS_LANG            AMERICAN_AMERICA.AL32UTF8
+ 
+#------------------------------ Scope ---------------------------------------
+SCHEMA              MIGLAB
+EXPORT_SCHEMA       1
+CREATE_SCHEMA       1
+# 0 = fold names to lowercase, no quotes (same rule we used in Phase 4)
+PRESERVE_CASE       0
+ 
+#------------------------------ PostgreSQL target ---------------------------
+# Separate database so the Phase 4 result in miglabdb is never touched
+PG_DSN              dbi:Pg:dbname=miglab_ora2pg;host=postgres-target;port=5432
+PG_USER             miglab
+PG_PWD              <MIGLAB_PG_PASSWORD>
+# Ora2Pg 25.0 predates PostgreSQL 18; 17 enables every feature it knows about
+PG_VERSION          17
+CLIENT_ENCODING     UTF8
+ 
+#------------------------------ Type mapping --------------------------------
+# NUMBER(p) without scale -> smallint / integer / bigint by precision
+PG_INTEGER_TYPE     1
+# 0 = keep NUMBER(p,s) as exact numeric(p,s). 1 would use float types (never for money)
+PG_NUMERIC_TYPE     0
+# Used only for NUMBER without precision (MIGLAB has none)
+DEFAULT_NUMERIC     numeric
+# Main run uses Ora2Pg defaults for DATE so we can SEE its choice.
+# Optional exercise (Step 11): uncomment to match the Phase 4 business-date decision.
+#MODIFY_TYPE        MEMBER:DATE_OF_BIRTH:date,FEE_SCHEDULE:EFFECTIVE_DATE:date,FEE_SCHEDULE:TERMINATION_DATE:date,FEE_SCHEDULE_DETAIL:EFFECTIVE_DATE:date,FEE_SCHEDULE_DETAIL:TERMINATION_DATE:date,CLAIM:SERVICE_DATE:date
+ 
+#------------------------------ Code conversion -----------------------------
+# Package -> schema; routines become pkg_claim_admin.<name> (same as Phase 4)
+PACKAGE_AS_SCHEMA   1
+# 0 = keep PostgreSQL NULL semantics, same as our manual conversion.
+# 1 = rewrite IS NULL tests with coalesce() to emulate Oracle ''=NULL (exercise in Step 11)
+NULL_EQUAL_EMPTY    0
+ 
+#------------------------------ Output layout -------------------------------
+# Separate files let us load: tables -> data -> indexes -> constraints -> FKs
+FILE_PER_CONSTRAINT 1
+FILE_PER_INDEX      1
+FILE_PER_FKEYS      1
+FILE_PER_FUNCTION   0
+ 
+#------------------------------ Data export ---------------------------------
+DATA_LIMIT          10000
+TRUNCATE_TABLE      0
+DROP_FKEY           0
+STOP_ON_ERROR       1
+ 
+#------------------------------ Assessment ----------------------------------
+ESTIMATE_COST       1
+# 1 cost unit = 5 minutes of migration work (Ora2Pg default)
+COST_UNIT_VALUE     5
+ 
+DEBUG               0

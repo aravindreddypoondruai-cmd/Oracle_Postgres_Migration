@@ -1,0 +1,91 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type SHOW_COLUMN'
+[1] TABLE CLAIM (owner: MIGLAB, 50000 rows)
+	CLAIM_ID : NUMBER(15) => bigint
+	CLAIM_NUMBER : VARCHAR2(30) => varchar(30)
+	MEMBER_ID : NUMBER(12) => bigint
+	PROVIDER_ID : NUMBER(10) => bigint
+	SERVICE_DATE : DATE(7) => timestamp(0) (date?)
+	RECEIVED_DATE : DATE(7) => timestamp(0) (date?)
+	CLAIM_STATUS : VARCHAR2(20) => varchar(20)
+	TOTAL_BILLED : NUMBER(14,2) => decimal(14,2)
+	TOTAL_ALLOWED : NUMBER(14,2) => decimal(14,2)
+	CREATED_TIMESTAMP : TIMESTAMP(6) => TIMESTAMP(6)
+[2] TABLE CLAIM_DETAIL (owner: MIGLAB, 150000 rows)
+	CLAIM_DETAIL_ID : NUMBER(15) => bigint
+	CLAIM_ID : NUMBER(15) => bigint
+	LINE_NUMBER : NUMBER(5) => integer
+	PROCEDURE_CODE : VARCHAR2(20) => varchar(20)
+	MODIFIER_CODE : VARCHAR2(10) => varchar(10)
+	BILLED_AMOUNT : NUMBER(12,2) => decimal(12,2)
+	ALLOWED_AMOUNT : NUMBER(12,2) => decimal(12,2)
+[3] TABLE FEE_SCHEDULE (owner: MIGLAB, 500 rows)
+	SCHEDULE_ID : NUMBER(10) => bigint
+	SCHEDULE_CODE : VARCHAR2(30) => varchar(30)
+	SCHEDULE_NAME : VARCHAR2(150) => varchar(150)
+	EFFECTIVE_DATE : DATE(7) => timestamp(0) (date?)
+	TERMINATION_DATE : DATE(7) => timestamp(0) (date?)
+	STATUS : VARCHAR2(20) => varchar(20)
+	DESCRIPTION : CLOB(4000) => text
+	CREATED_DATE : DATE(7) => timestamp(0) (date?)
+	UPDATED_TIMESTAMP : TIMESTAMP(6) => TIMESTAMP(6)
+[4] TABLE FEE_SCHEDULE_DETAIL (owner: MIGLAB, 25000 rows)
+	SCHEDULE_DETAIL_ID : NUMBER(12) => bigint
+	SCHEDULE_ID : NUMBER(10) => bigint
+	PROCEDURE_CODE : VARCHAR2(20) => varchar(20)
+	MODIFIER_CODE : VARCHAR2(10) => varchar(10)
+	ALLOWED_AMOUNT : NUMBER(12,2) => decimal(12,2)
+	EFFECTIVE_DATE : DATE(7) => timestamp(0) (date?)
+	TERMINATION_DATE : DATE(7) => timestamp(0) (date?)
+[5] TABLE MEMBER (owner: MIGLAB, 10000 rows)
+	MEMBER_ID : NUMBER(12) => bigint
+	MEMBER_NUMBER : VARCHAR2(30) => varchar(30)
+	FIRST_NAME : VARCHAR2(100) => varchar(100)
+	LAST_NAME : VARCHAR2(100) => varchar(100)
+	DATE_OF_BIRTH : DATE(7) => timestamp(0) (date?)
+	STATE_CODE : VARCHAR2(2) => varchar(2)
+	ACTIVE_FLAG : CHAR(1) => char(1)
+	CREATED_DATE : DATE(7) => timestamp(0) (date?)
+[6] TABLE MIGRATION_AUDIT (owner: MIGLAB, 1 rows)
+	AUDIT_ID : NUMBER(12) => bigint
+	PROCESS_NAME : VARCHAR2(100) => varchar(100)
+	SOURCE_COUNT : NUMBER(12) => bigint
+	TARGET_COUNT : NUMBER(12) => bigint
+	STATUS : VARCHAR2(20) => varchar(20)
+	MESSAGE : VARCHAR2(4000) => varchar(4000)
+	CREATED_TIMESTAMP : TIMESTAMP(6) => TIMESTAMP(6)
+[7] TABLE PROVIDER (owner: MIGLAB, 1000 rows)
+	PROVIDER_ID : NUMBER(10) => bigint
+	PROVIDER_CODE : VARCHAR2(20) => varchar(20)
+	PROVIDER_NAME : VARCHAR2(150) => varchar(150)
+	SPECIALTY : VARCHAR2(100) => varchar(100)
+	STATE_CODE : VARCHAR2(2) => varchar(2)
+	ACTIVE_FLAG : CHAR(1) => char(1)
+	CREATED_DATE : DATE(7) => timestamp(0) (date?)
+	UPDATED_TIMESTAMP : TIMESTAMP(6) => TIMESTAMP(6)
+----------------------------------------------------------
+Total number of rows: 236501
+
+Global Temporary Tables:
+
+
+Top 10 of tables sorted by number of rows:
+	[1] TABLE CLAIM_DETAIL has 150000 rows
+	[2] TABLE CLAIM has 50000 rows
+	[3] TABLE FEE_SCHEDULE_DETAIL has 25000 rows
+	[4] TABLE MEMBER has 10000 rows
+	[5] TABLE PROVIDER has 1000 rows
+	[6] TABLE FEE_SCHEDULE has 500 rows
+	[7] TABLE MIGRATION_AUDIT has 1 rows
+Top 10 of largest tables:
+	[1] TABLE CLAIM_DETAIL: 7 MB (150000 rows)
+	[2] TABLE CLAIM: 4 MB (50000 rows)
+	[3] TABLE FEE_SCHEDULE_DETAIL: 2 MB (25000 rows)
+	[4] TABLE MEMBER: 1 MB (10000 rows)
+	[5] TABLE PROVIDER: 0 MB (1000 rows)
+	[6] TABLE MIGRATION_AUDIT: 0 MB (1 rows)
+	[7] TABLE FEE_SCHEDULE: 0 MB (500 rows)

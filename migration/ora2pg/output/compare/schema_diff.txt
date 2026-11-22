@@ -1,0 +1,919 @@
+﻿diff --git "a/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\schema_miglabdb.sql" "b/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\schema_miglab_ora2pg.sql"
+index 18802c5..6414891 100644
+--- "a/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\schema_miglabdb.sql"
++++ "b/C:\\Users\\Raval\\Documents\\Oracle_Postgres_Migration\\migration\\ora2pg\\output\\compare\\schema_miglab_ora2pg.sql"
+@@ -2,7 +2,7 @@
+ -- PostgreSQL database dump
+ --
+ 
+-\restrict beMgB61DknMv5tsjRIoovkL8avDJVDMbsbhxb2ImChIcHPLfUVJLeW5c2arQRHh
++\restrict M9aZGrlKm6MiOfyzwfVbO6DIK7oVxv9oDm9Z5wt2HReUF4NMwvfrC4Q1POD8fTg
+ 
+ -- Dumped from database version 18.7 (Debian 18.7-1.pgdg13+5)
+ -- Dumped by pg_dump version 18.7 (Debian 18.7-1.pgdg13+5)
+@@ -38,21 +38,17 @@ CREATE SCHEMA pkg_claim_admin;
+ --
+ 
+ CREATE FUNCTION miglab.fn_claim_balance(p_claim_id bigint) RETURNS numeric
+-    LANGUAGE plpgsql STABLE
++    LANGUAGE plpgsql SECURITY DEFINER
+     AS $$
+ DECLARE
+-    l_balance numeric(14,2);
++
++ l_balance decimal(14,2);
++
+ BEGIN
+-    SELECT COALESCE(total_billed, 0) - COALESCE(total_allowed, 0)
+-      INTO l_balance
+-      FROM miglab.claim
+-     WHERE claim_id = p_claim_id;
+- 
+-    IF NOT FOUND THEN
+-        RETURN NULL;
+-    END IF;
+- 
+-    RETURN l_balance;
++ SELECT coalesce(total_billed,0)-coalesce(total_allowed,0)
++ INTO STRICT l_balance FROM claim WHERE claim_id=p_claim_id;
++ RETURN l_balance;
++EXCEPTION WHEN no_data_found THEN RETURN NULL;
+ END;
+ $$;
+ 
+@@ -62,60 +58,200 @@ $$;
+ --
+ 
+ CREATE PROCEDURE miglab.pr_recalculate_claim(IN p_claim_id bigint)
+-    LANGUAGE plpgsql
++    LANGUAGE plpgsql SECURITY DEFINER
+     AS $$
+ DECLARE
+-    l_billed  numeric(14,2);
+-    l_allowed numeric(14,2);
++
++    ora2pg_rowcount int;
++l_billed  numeric;
++    l_allowed numeric;
++    l_message varchar(4000);
++
+ BEGIN
+-    SELECT COALESCE(SUM(billed_amount), 0),
+-           COALESCE(SUM(allowed_amount), 0)
+-      INTO l_billed, l_allowed
+-      FROM miglab.claim_detail
+-     WHERE claim_id = p_claim_id;
+- 
+-    UPDATE miglab.claim
++
++    SELECT coalesce(SUM(billed_amount),0),
++           coalesce(SUM(allowed_amount),0)
++    INTO STRICT l_billed,
++         l_allowed
++    FROM claim_detail
++    WHERE claim_id = p_claim_id;
++
++    UPDATE claim
+        SET total_billed  = l_billed,
+            total_allowed = l_allowed,
+-           claim_status  = CASE claim_status WHEN 'NEW' THEN 'PROCESSING'
+-                                             ELSE claim_status END
++           claim_status  =
++               CASE
++                   WHEN claim_status = 'NEW'
++                   THEN 'PROCESSING'
++                   ELSE claim_status
++               END
+      WHERE claim_id = p_claim_id;
+- 
+-    IF NOT FOUND THEN
+-        RAISE EXCEPTION 'Claim ID % does not exist', p_claim_id
+-              USING ERRCODE = 'P0001';
++
++    GET DIAGNOSTICS ora2pg_rowcount = ROW_COUNT;
++IF ora2pg_rowcount = 0 THEN
++        RAISE EXCEPTION '%', 'Claim ID ' || p_claim_id || ' does not exist'
++         USING ERRCODE = '45001';
+     END IF;
+- 
+-    INSERT INTO miglab.migration_audit
+-           (process_name, source_count, target_count, status, message)
+-    VALUES ('PR_RECALCULATE_CLAIM', 1, 1, 'SUCCESS',
+-            'Claim ' || p_claim_id || ' recalculated at ' ||
+-            to_char(clock_timestamp(), 'YYYY-MM-DD HH24:MI:SS.US'));
+- 
++
++    l_message := 'Claim recalculated successfully';
++
++    INSERT INTO migration_audit(
++        audit_id,
++        process_name,
++        source_count,
++        target_count,
++        status,
++        message,
++        created_timestamp
++    )
++    VALUES (
++        nextval('seq_migration_audit'),
++        'PR_RECALCULATE_CLAIM',
++        1,
++        1,
++        'SUCCESS',
++        l_message,
++        statement_timestamp()
++    );
++
+ EXCEPTION
+     WHEN OTHERS THEN
+-        INSERT INTO miglab.migration_audit
+-               (process_name, source_count, target_count, status, message)
+-        VALUES ('PR_RECALCULATE_CLAIM', 1, 0, 'FAILED', left(SQLERRM, 4000));
++
++        l_message := SUBSTR(SQLERRM,1,4000);
++
++        INSERT INTO migration_audit(
++            audit_id,
++            process_name,
++            source_count,
++            target_count,
++            status,
++            message,
++            created_timestamp
++        )
++        VALUES (
++            nextval('seq_migration_audit'),
++            'PR_RECALCULATE_CLAIM',
++            1,
++            0,
++            'FAILED',
++            l_message,
++            statement_timestamp()
++        );
++
+         RAISE;
+ END;
+ $$;
+ 
+ 
++--
++-- Name: trigger_fct_trg_claim_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_claim_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.claim_id := nextval('seq_claim');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_claim_detail_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_claim_detail_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.claim_detail_id := nextval('seq_claim_detail');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_fee_schedule_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_fee_schedule_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.schedule_id := nextval('seq_fee_schedule');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_fee_schedule_detail_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_fee_schedule_detail_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.schedule_detail_id := nextval('seq_fee_schedule_detail');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_member_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_member_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.member_id := nextval('seq_member');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_migration_audit_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_migration_audit_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.audit_id := nextval('seq_migration_audit');RETURN NEW;
++END
++$$;
++
++
++--
++-- Name: trigger_fct_trg_provider_bi(); Type: FUNCTION; Schema: miglab; Owner: -
++--
++
++CREATE FUNCTION miglab.trigger_fct_trg_provider_bi() RETURNS trigger
++    LANGUAGE plpgsql SECURITY DEFINER
++    AS $$
++BEGIN NEW.provider_id := nextval('seq_provider');RETURN NEW;
++END
++$$;
++
++
+ --
+ -- Name: get_status_label(character varying); Type: FUNCTION; Schema: pkg_claim_admin; Owner: -
+ --
+ 
+ CREATE FUNCTION pkg_claim_admin.get_status_label(p_status character varying) RETURNS character varying
+-    LANGUAGE sql IMMUTABLE
++    LANGUAGE plpgsql SECURITY DEFINER
+     AS $$
+-    SELECT CASE p_status
+-                WHEN 'NEW'        THEN 'Pending Intake'
+-                WHEN 'PROCESSING' THEN 'Under Review'
+-                WHEN 'PAID'       THEN 'Completed'
+-                WHEN 'DENIED'     THEN 'Rejected'
+-                ELSE 'Unknown'
+-           END;
++BEGIN
++        CASE p_status
++            WHEN 'NEW' THEN
++                RETURN 'Pending Intake';
++
++            WHEN 'PROCESSING' THEN
++                RETURN 'Under Review';
++
++            WHEN 'PAID' THEN
++                RETURN 'Completed';
++
++            WHEN 'DENIED' THEN
++                RETURN 'Rejected';
++
++            ELSE
++                RETURN 'Unknown';
++        END CASE;
++    END;
+ $$;
+ 
+ 
+@@ -124,28 +260,50 @@ $$;
+ --
+ 
+ CREATE PROCEDURE pkg_claim_admin.recalculate_open_claims()
+-    LANGUAGE plpgsql
++    LANGUAGE plpgsql SECURITY DEFINER
+     AS $$
+ DECLARE
+-    r       record;
+-    l_count bigint := 0;
++
++        c_claims CURSOR FOR
++            SELECT claim_id
++            FROM claim
++            WHERE claim_status IN ('NEW','PROCESSING');
++
++        l_count numeric := 0;
++
++
+ BEGIN
+-    FOR r IN SELECT claim_id
+-               FROM miglab.claim
+-              WHERE claim_status IN ('NEW', 'PROCESSING')
+-    LOOP
+-        CALL miglab.pr_recalculate_claim(r.claim_id);
+-        l_count := l_count + 1;
+-    END LOOP;
+- 
+-    CALL pkg_claim_admin.upsert_audit('RECALCULATE_OPEN_CLAIMS', l_count, l_count,
+-                                      'SUCCESS', 'Open claims processed successfully');
+-EXCEPTION
+-    WHEN OTHERS THEN
+-        CALL pkg_claim_admin.upsert_audit('RECALCULATE_OPEN_CLAIMS', l_count, 0,
+-                                          'FAILED', left(SQLERRM, 4000));
+-        RAISE;
+-END;
++
++        FOR r IN c_claims LOOP
++
++            CALL pr_recalculate_claim(r.claim_id);
++
++            l_count := l_count + 1;
++
++        END LOOP;
++
++        CALL pkg_claim_admin.upsert_audit(
++            'RECALCULATE_OPEN_CLAIMS',
++            l_count,
++            l_count,
++            'SUCCESS',
++            'Open claims processed successfully'
++        );
++
++    EXCEPTION
++        WHEN OTHERS THEN
++
++            CALL pkg_claim_admin.upsert_audit(
++                'RECALCULATE_OPEN_CLAIMS',
++                l_count,
++                0,
++                'FAILED',
++                SUBSTR(SQLERRM,1,4000)
++            );
++
++            RAISE;
++
++    END;
+ $$;
+ 
+ 
+@@ -154,25 +312,49 @@ $$;
+ --
+ 
+ CREATE PROCEDURE pkg_claim_admin.upsert_audit(IN p_process_name character varying, IN p_source_count bigint, IN p_target_count bigint, IN p_status character varying, IN p_message character varying)
+-    LANGUAGE plpgsql
++    LANGUAGE plpgsql SECURITY DEFINER
+     AS $$
+ BEGIN
+-    MERGE INTO miglab.migration_audit a
+-    USING (SELECT p_process_name AS process_name) s
+-       ON a.process_name = s.process_name
+-      AND a.created_timestamp::date = current_date
+-    WHEN MATCHED THEN
+-        UPDATE SET source_count      = p_source_count,
+-                   target_count      = p_target_count,
+-                   status            = p_status,
+-                   message           = p_message,
+-                   created_timestamp = localtimestamp
+-    WHEN NOT MATCHED THEN
+-        INSERT (process_name, source_count, target_count,
+-                status, message, created_timestamp)
+-        VALUES (p_process_name, p_source_count, p_target_count,
+-                p_status, p_message, localtimestamp);
+-END;
++
++        MERGE INTO migration_audit a
++        USING(
++            SELECT p_process_name process_name
++
++        ) s
++        ON (
++            a.process_name = s.process_name
++            AND date_trunc('day', a.created_timestamp) = date_trunc('day', clock_timestamp())
++        )
++
++        WHEN MATCHED THEN
++            UPDATE SET
++                a.source_count      = p_source_count,
++                a.target_count      = p_target_count,
++                a.status            = p_status,
++                a.message           = p_message,
++                a.created_timestamp = statement_timestamp()
++
++        WHEN NOT MATCHED THEN
++            INSERT(
++                audit_id,
++                process_name,
++                source_count,
++                target_count,
++                status,
++                message,
++                created_timestamp
++            )
++            VALUES (
++                nextval('seq_migration_audit'),
++                p_process_name,
++                p_source_count,
++                p_target_count,
++                p_status,
++                p_message,
++                statement_timestamp()
++            );
++
++    END;
+ $$;
+ 
+ 
+@@ -189,30 +371,16 @@ CREATE TABLE miglab.claim (
+     claim_number character varying(30) NOT NULL,
+     member_id bigint NOT NULL,
+     provider_id bigint NOT NULL,
+-    service_date date NOT NULL,
+-    received_date timestamp(0) without time zone DEFAULT LOCALTIMESTAMP(0),
++    service_date timestamp(0) without time zone NOT NULL,
++    received_date timestamp(0) without time zone DEFAULT statement_timestamp(),
+     claim_status character varying(20),
+     total_billed numeric(14,2),
+     total_allowed numeric(14,2),
+-    created_timestamp timestamp(6) without time zone DEFAULT LOCALTIMESTAMP,
++    created_timestamp timestamp(6) without time zone DEFAULT statement_timestamp(),
+     CONSTRAINT ck_claim_status CHECK (((claim_status)::text = ANY ((ARRAY['NEW'::character varying, 'PROCESSING'::character varying, 'PAID'::character varying, 'DENIED'::character varying])::text[])))
+ );
+ 
+ 
+---
+--- Name: claim_claim_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
+---
+-
+-ALTER TABLE miglab.claim ALTER COLUMN claim_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.claim_claim_id_seq
+-    START WITH 1
+-    INCREMENT BY 1
+-    NO MINVALUE
+-    NO MAXVALUE
+-    CACHE 1
+-);
+-
+-
+ --
+ -- Name: claim_detail; Type: TABLE; Schema: miglab; Owner: -
+ --
+@@ -228,20 +396,6 @@ CREATE TABLE miglab.claim_detail (
+ );
+ 
+ 
+---
+--- Name: claim_detail_claim_detail_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
+---
+-
+-ALTER TABLE miglab.claim_detail ALTER COLUMN claim_detail_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.claim_detail_claim_detail_id_seq
+-    START WITH 1
+-    INCREMENT BY 1
+-    NO MINVALUE
+-    NO MAXVALUE
+-    CACHE 1
+-);
+-
+-
+ --
+ -- Name: fee_schedule; Type: TABLE; Schema: miglab; Owner: -
+ --
+@@ -250,12 +404,12 @@ CREATE TABLE miglab.fee_schedule (
+     schedule_id bigint NOT NULL,
+     schedule_code character varying(30) NOT NULL,
+     schedule_name character varying(150),
+-    effective_date date NOT NULL,
+-    termination_date date,
++    effective_date timestamp(0) without time zone NOT NULL,
++    termination_date timestamp(0) without time zone,
+     status character varying(20) DEFAULT 'ACTIVE'::character varying,
+     description text,
+-    created_date timestamp(0) without time zone DEFAULT LOCALTIMESTAMP(0),
+-    updated_timestamp timestamp(6) without time zone DEFAULT LOCALTIMESTAMP,
++    created_date timestamp(0) without time zone DEFAULT statement_timestamp(),
++    updated_timestamp timestamp(6) without time zone DEFAULT statement_timestamp(),
+     CONSTRAINT ck_fee_schedule_status CHECK (((status)::text = ANY ((ARRAY['ACTIVE'::character varying, 'INACTIVE'::character varying])::text[])))
+ );
+ 
+@@ -270,128 +424,142 @@ CREATE TABLE miglab.fee_schedule_detail (
+     procedure_code character varying(20) NOT NULL,
+     modifier_code character varying(10),
+     allowed_amount numeric(12,2) NOT NULL,
+-    effective_date date NOT NULL,
+-    termination_date date
++    effective_date timestamp(0) without time zone NOT NULL,
++    termination_date timestamp(0) without time zone
+ );
+ 
+ 
+ --
+--- Name: fee_schedule_detail_schedule_detail_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
++-- Name: member; Type: TABLE; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE miglab.fee_schedule_detail ALTER COLUMN schedule_detail_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.fee_schedule_detail_schedule_detail_id_seq
+-    START WITH 1
+-    INCREMENT BY 1
+-    NO MINVALUE
+-    NO MAXVALUE
+-    CACHE 1
++CREATE TABLE miglab.member (
++    member_id bigint NOT NULL,
++    member_number character varying(30) NOT NULL,
++    first_name character varying(100),
++    last_name character varying(100),
++    date_of_birth timestamp(0) without time zone,
++    state_code character varying(2),
++    active_flag character(1) DEFAULT 'Y'::bpchar,
++    created_date timestamp(0) without time zone DEFAULT statement_timestamp(),
++    CONSTRAINT ck_member_active CHECK ((active_flag = ANY (ARRAY['Y'::bpchar, 'N'::bpchar])))
+ );
+ 
+ 
+ --
+--- Name: fee_schedule_schedule_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
++-- Name: migration_audit; Type: TABLE; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE miglab.fee_schedule ALTER COLUMN schedule_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.fee_schedule_schedule_id_seq
+-    START WITH 1
+-    INCREMENT BY 1
+-    NO MINVALUE
+-    NO MAXVALUE
+-    CACHE 1
++CREATE TABLE miglab.migration_audit (
++    audit_id bigint NOT NULL,
++    process_name character varying(100),
++    source_count bigint,
++    target_count bigint,
++    status character varying(20),
++    message character varying(4000),
++    created_timestamp timestamp(6) without time zone DEFAULT statement_timestamp()
+ );
+ 
+ 
+ --
+--- Name: member; Type: TABLE; Schema: miglab; Owner: -
++-- Name: provider; Type: TABLE; Schema: miglab; Owner: -
+ --
+ 
+-CREATE TABLE miglab.member (
+-    member_id bigint NOT NULL,
+-    member_number character varying(30) NOT NULL,
+-    first_name character varying(100),
+-    last_name character varying(100),
+-    date_of_birth date,
++CREATE TABLE miglab.provider (
++    provider_id bigint NOT NULL,
++    provider_code character varying(20) NOT NULL,
++    provider_name character varying(150) NOT NULL,
++    specialty character varying(100),
+     state_code character varying(2),
+     active_flag character(1) DEFAULT 'Y'::bpchar,
+-    created_date timestamp(0) without time zone DEFAULT LOCALTIMESTAMP(0),
+-    CONSTRAINT ck_member_active CHECK ((active_flag = ANY (ARRAY['Y'::bpchar, 'N'::bpchar])))
++    created_date timestamp(0) without time zone DEFAULT statement_timestamp(),
++    updated_timestamp timestamp(6) without time zone DEFAULT statement_timestamp(),
++    CONSTRAINT ck_provider_active CHECK ((active_flag = ANY (ARRAY['Y'::bpchar, 'N'::bpchar])))
+ );
+ 
+ 
+ --
+--- Name: member_member_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
++-- Name: seq_claim; Type: SEQUENCE; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE miglab.member ALTER COLUMN member_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.member_member_id_seq
+-    START WITH 1
++CREATE SEQUENCE miglab.seq_claim
++    START WITH 111201
+     INCREMENT BY 1
+     NO MINVALUE
+     NO MAXVALUE
+-    CACHE 1
+-);
++    CACHE 100;
+ 
+ 
+ --
+--- Name: migration_audit; Type: TABLE; Schema: miglab; Owner: -
++-- Name: seq_claim_detail; Type: SEQUENCE; Schema: miglab; Owner: -
+ --
+ 
+-CREATE TABLE miglab.migration_audit (
+-    audit_id bigint NOT NULL,
+-    process_name character varying(100),
+-    source_count bigint,
+-    target_count bigint,
+-    status character varying(20),
+-    message character varying(4000),
+-    created_timestamp timestamp(6) without time zone DEFAULT LOCALTIMESTAMP
+-);
++CREATE SEQUENCE miglab.seq_claim_detail
++    START WITH 263896
++    INCREMENT BY 1
++    NO MINVALUE
++    NO MAXVALUE
++    CACHE 100;
+ 
+ 
+ --
+--- Name: migration_audit_audit_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
++-- Name: seq_fee_schedule; Type: SEQUENCE; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE miglab.migration_audit ALTER COLUMN audit_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.migration_audit_audit_id_seq
+-    START WITH 1
++CREATE SEQUENCE miglab.seq_fee_schedule
++    START WITH 2221
+     INCREMENT BY 1
+     NO MINVALUE
+     NO MAXVALUE
+-    CACHE 1
+-);
++    CACHE 20;
+ 
+ 
+ --
+--- Name: provider; Type: TABLE; Schema: miglab; Owner: -
++-- Name: seq_fee_schedule_detail; Type: SEQUENCE; Schema: miglab; Owner: -
+ --
+ 
+-CREATE TABLE miglab.provider (
+-    provider_id bigint NOT NULL,
+-    provider_code character varying(20) NOT NULL,
+-    provider_name character varying(150) NOT NULL,
+-    specialty character varying(100),
+-    state_code character varying(2),
+-    active_flag character(1) DEFAULT 'Y'::bpchar,
+-    created_date timestamp(0) without time zone DEFAULT LOCALTIMESTAMP(0),
+-    updated_timestamp timestamp(6) without time zone DEFAULT LOCALTIMESTAMP,
+-    CONSTRAINT ck_provider_active CHECK ((active_flag = ANY (ARRAY['Y'::bpchar, 'N'::bpchar])))
+-);
++CREATE SEQUENCE miglab.seq_fee_schedule_detail
++    START WITH 222221
++    INCREMENT BY 1
++    NO MINVALUE
++    NO MAXVALUE
++    CACHE 20;
+ 
+ 
+ --
+--- Name: provider_provider_id_seq; Type: SEQUENCE; Schema: miglab; Owner: -
++-- Name: seq_member; Type: SEQUENCE; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE miglab.provider ALTER COLUMN provider_id ADD GENERATED BY DEFAULT AS IDENTITY (
+-    SEQUENCE NAME miglab.provider_provider_id_seq
+-    START WITH 1
++CREATE SEQUENCE miglab.seq_member
++    START WITH 22241
+     INCREMENT BY 1
+     NO MINVALUE
+     NO MAXVALUE
+-    CACHE 1
+-);
++    CACHE 20;
++
++
++--
++-- Name: seq_migration_audit; Type: SEQUENCE; Schema: miglab; Owner: -
++--
++
++CREATE SEQUENCE miglab.seq_migration_audit
++    START WITH 21
++    INCREMENT BY 1
++    NO MINVALUE
++    NO MAXVALUE
++    CACHE 20;
++
++
++--
++-- Name: seq_provider; Type: SEQUENCE; Schema: miglab; Owner: -
++--
++
++CREATE SEQUENCE miglab.seq_provider
++    START WITH 2241
++    INCREMENT BY 1
++    NO MINVALUE
++    NO MAXVALUE
++    CACHE 20;
+ 
+ 
+ --
+@@ -404,7 +572,7 @@ CREATE VIEW miglab.v_active_fee_schedule AS
+     fs.schedule_name,
+     fs.effective_date,
+     fs.termination_date,
+-    COALESCE(fs.termination_date, '2999-12-31'::date) AS effective_end_date,
++    COALESCE(fs.termination_date, '2999-12-31 00:00:00'::timestamp(0) without time zone) AS effective_end_date,
+     fs.status,
+     count(fsd.schedule_detail_id) AS detail_count,
+     COALESCE(avg(fsd.allowed_amount), (0)::numeric) AS average_allowed_amount
+@@ -426,11 +594,11 @@ CREATE VIEW miglab.v_claim_summary AS
+     p.provider_name,
+     c.service_date,
+     c.claim_status,
+-        CASE c.claim_status
+-            WHEN 'NEW'::text THEN 'Pending Intake'::text
+-            WHEN 'PROCESSING'::text THEN 'Under Review'::text
+-            WHEN 'PAID'::text THEN 'Completed'::text
+-            WHEN 'DENIED'::text THEN 'Rejected'::text
++        CASE
++            WHEN ((c.claim_status)::text = 'NEW'::text) THEN 'Pending Intake'::text
++            WHEN ((c.claim_status)::text = 'PROCESSING'::text) THEN 'Under Review'::text
++            WHEN ((c.claim_status)::text = 'PAID'::text) THEN 'Completed'::text
++            WHEN ((c.claim_status)::text = 'DENIED'::text) THEN 'Rejected'::text
+             ELSE 'Unknown'::text
+         END AS status_description,
+     COALESCE(c.total_billed, (0)::numeric) AS total_billed,
+@@ -442,99 +610,99 @@ CREATE VIEW miglab.v_claim_summary AS
+ 
+ 
+ --
+--- Name: claim pk_claim; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: claim claim_claim_number_key; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+ ALTER TABLE ONLY miglab.claim
+-    ADD CONSTRAINT pk_claim PRIMARY KEY (claim_id);
++    ADD CONSTRAINT claim_claim_number_key UNIQUE (claim_number);
+ 
+ 
+ --
+--- Name: claim_detail pk_claim_detail; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: claim_detail claim_detail_claim_id_line_number_key; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+ ALTER TABLE ONLY miglab.claim_detail
+-    ADD CONSTRAINT pk_claim_detail PRIMARY KEY (claim_detail_id);
++    ADD CONSTRAINT claim_detail_claim_id_line_number_key UNIQUE (claim_id, line_number);
+ 
+ 
+ --
+--- Name: fee_schedule pk_fee_schedule; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: claim_detail claim_detail_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.fee_schedule
+-    ADD CONSTRAINT pk_fee_schedule PRIMARY KEY (schedule_id);
++ALTER TABLE ONLY miglab.claim_detail
++    ADD CONSTRAINT claim_detail_pkey PRIMARY KEY (claim_detail_id);
+ 
+ 
+ --
+--- Name: fee_schedule_detail pk_fee_schedule_detail; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: claim claim_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.fee_schedule_detail
+-    ADD CONSTRAINT pk_fee_schedule_detail PRIMARY KEY (schedule_detail_id);
++ALTER TABLE ONLY miglab.claim
++    ADD CONSTRAINT claim_pkey PRIMARY KEY (claim_id);
+ 
+ 
+ --
+--- Name: member pk_member; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: fee_schedule_detail fee_schedule_detail_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.member
+-    ADD CONSTRAINT pk_member PRIMARY KEY (member_id);
++ALTER TABLE ONLY miglab.fee_schedule_detail
++    ADD CONSTRAINT fee_schedule_detail_pkey PRIMARY KEY (schedule_detail_id);
+ 
+ 
+ --
+--- Name: migration_audit pk_migration_audit; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: fee_schedule fee_schedule_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.migration_audit
+-    ADD CONSTRAINT pk_migration_audit PRIMARY KEY (audit_id);
++ALTER TABLE ONLY miglab.fee_schedule
++    ADD CONSTRAINT fee_schedule_pkey PRIMARY KEY (schedule_id);
+ 
+ 
+ --
+--- Name: provider pk_provider; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: fee_schedule fee_schedule_schedule_code_key; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.provider
+-    ADD CONSTRAINT pk_provider PRIMARY KEY (provider_id);
++ALTER TABLE ONLY miglab.fee_schedule
++    ADD CONSTRAINT fee_schedule_schedule_code_key UNIQUE (schedule_code);
+ 
+ 
+ --
+--- Name: claim_detail uk_claim_line; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: member member_member_number_key; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.claim_detail
+-    ADD CONSTRAINT uk_claim_line UNIQUE (claim_id, line_number);
++ALTER TABLE ONLY miglab.member
++    ADD CONSTRAINT member_member_number_key UNIQUE (member_number);
+ 
+ 
+ --
+--- Name: claim uk_claim_number; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: member member_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.claim
+-    ADD CONSTRAINT uk_claim_number UNIQUE (claim_number);
++ALTER TABLE ONLY miglab.member
++    ADD CONSTRAINT member_pkey PRIMARY KEY (member_id);
+ 
+ 
+ --
+--- Name: fee_schedule uk_fee_schedule_code; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: migration_audit migration_audit_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.fee_schedule
+-    ADD CONSTRAINT uk_fee_schedule_code UNIQUE (schedule_code);
++ALTER TABLE ONLY miglab.migration_audit
++    ADD CONSTRAINT migration_audit_pkey PRIMARY KEY (audit_id);
+ 
+ 
+ --
+--- Name: member uk_member_number; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: provider provider_pkey; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+-ALTER TABLE ONLY miglab.member
+-    ADD CONSTRAINT uk_member_number UNIQUE (member_number);
++ALTER TABLE ONLY miglab.provider
++    ADD CONSTRAINT provider_pkey PRIMARY KEY (provider_id);
+ 
+ 
+ --
+--- Name: provider uk_provider_code; Type: CONSTRAINT; Schema: miglab; Owner: -
++-- Name: provider provider_provider_code_key; Type: CONSTRAINT; Schema: miglab; Owner: -
+ --
+ 
+ ALTER TABLE ONLY miglab.provider
+-    ADD CONSTRAINT uk_provider_code UNIQUE (provider_code);
++    ADD CONSTRAINT provider_provider_code_key UNIQUE (provider_code);
+ 
+ 
+ --
+@@ -593,6 +761,55 @@ CREATE INDEX idx_fsd_schedule ON miglab.fee_schedule_detail USING btree (schedul
+ CREATE INDEX idx_provider_specialty ON miglab.provider USING btree (specialty);
+ 
+ 
++--
++-- Name: claim trg_claim_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_claim_bi BEFORE INSERT ON miglab.claim FOR EACH ROW WHEN ((new.claim_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_claim_bi();
++
++
++--
++-- Name: claim_detail trg_claim_detail_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_claim_detail_bi BEFORE INSERT ON miglab.claim_detail FOR EACH ROW WHEN ((new.claim_detail_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_claim_detail_bi();
++
++
++--
++-- Name: fee_schedule trg_fee_schedule_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_fee_schedule_bi BEFORE INSERT ON miglab.fee_schedule FOR EACH ROW WHEN ((new.schedule_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_fee_schedule_bi();
++
++
++--
++-- Name: fee_schedule_detail trg_fee_schedule_detail_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_fee_schedule_detail_bi BEFORE INSERT ON miglab.fee_schedule_detail FOR EACH ROW WHEN ((new.schedule_detail_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_fee_schedule_detail_bi();
++
++
++--
++-- Name: member trg_member_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_member_bi BEFORE INSERT ON miglab.member FOR EACH ROW WHEN ((new.member_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_member_bi();
++
++
++--
++-- Name: migration_audit trg_migration_audit_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_migration_audit_bi BEFORE INSERT ON miglab.migration_audit FOR EACH ROW WHEN ((new.audit_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_migration_audit_bi();
++
++
++--
++-- Name: provider trg_provider_bi; Type: TRIGGER; Schema: miglab; Owner: -
++--
++
++CREATE TRIGGER trg_provider_bi BEFORE INSERT ON miglab.provider FOR EACH ROW WHEN ((new.provider_id IS NULL)) EXECUTE FUNCTION miglab.trigger_fct_trg_provider_bi();
++
++
+ --
+ -- Name: claim_detail fk_claim_detail_claim; Type: FK CONSTRAINT; Schema: miglab; Owner: -
+ --
+@@ -629,5 +846,5 @@ ALTER TABLE ONLY miglab.fee_schedule_detail
+ -- PostgreSQL database dump complete
+ --
+ 
+-\unrestrict beMgB61DknMv5tsjRIoovkL8avDJVDMbsbhxb2ImChIcHPLfUVJLeW5c2arQRHh
++\unrestrict M9aZGrlKm6MiOfyzwfVbO6DIK7oVxv9oDm9Z5wt2HReUF4NMwvfrC4Q1POD8fTg
+ 

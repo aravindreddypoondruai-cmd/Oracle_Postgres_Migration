@@ -1,0 +1,97 @@
+﻿INFO: No CONFIG_LOCATION variable provided. Using default '/config/ora2pg.conf'
+INFO: No OUTPUT_LOCATION variable provided. Using default '/data'
+INFO: No ORA_HOST variable provided. Using value of 'ORACLE_DSN' from '/config/ora2pg.conf'
+INFO: No ORA_USER variable provided. Using value of 'ORACLE_USER' from  '/config/ora2pg.conf'
+INFO: No ORA_PWD variable provided. Using value of 'ORACLE_PWD' from  '/config/ora2pg.conf'
+INFO: executing: 'ora2pg -c /config/ora2pg.conf --type SHOW_REPORT --estimate_cost'
+-------------------------------------------------------------------------------
+Ora2Pg v25.0 - Database Migration Report
+-------------------------------------------------------------------------------
+Version	Oracle AI Database 26ai Free Release 23.26.3.0.0
+Schema	MIGLAB
+Size	39.44 MB
+
+-------------------------------------------------------------------------------
+Object	Number	Invalid	Estimated cost	Comments	Details
+-------------------------------------------------------------------------------
+DATABASE LINK	0	0	0.00	Database links will be exported as SQL/MED PostgreSQL's Foreign Data Wrapper (FDW) extensions using oracle_fdw.	
+FUNCTION	1	0	4.00	Total size of function code: 470 bytes.	fn_claim_balance: 3. 
+GLOBAL TEMPORARY TABLE	0	0	0.00	Global temporary table are not supported by PostgreSQL and will not be exported. You will have to rewrite some application code to match the PostgreSQL temporary table behavior.	
+INDEX	20	0	2.80	8 index(es) are concerned by the export, others are automatically generated and will do so on PostgreSQL. Bitmap will be exported as btree_gin index(es). Domain index are exported as b-tree but commented to be edited to mainly use FTS. Cluster, bitmap join and IOT indexes will not be exported at all. Reverse indexes are not exported too, you may use a trigram-based index (see pg_trgm) or a reverse() function based index and search. Use 'varchar_pattern_ops', 'text_pattern_ops' or 'bpchar_pattern_ops' operators in your indexes to improve search with the LIKE operator respectively into varchar, text or char columns.	8 b-tree index(es). 
+JOB	0	0	0.00	Job are not exported. You may set external cron job with them.	
+PACKAGE BODY	1	0	15.20	Total size of package code: 2912 bytes. Number of procedures and functions found inside those packages: 3.	pkg_claim_admin.get_status_label: 3. pkg_claim_admin.recalculate_open_claims: 3. pkg_claim_admin.upsert_audit: 3.2. 
+PROCEDURE	1	0	4.20	Total size of procedure code: 1966 bytes.	pr_recalculate_claim: 3.2. 
+SEQUENCE	7	0	1.00	Sequences are fully supported, but all call to sequence_name.NEXTVAL or sequence_name.CURRVAL will be transformed into NEXTVAL('sequence_name') or CURRVAL('sequence_name').	
+SYNONYM	0	0	0.00	SYNONYMs will be exported as views. SYNONYMs do not exists with PostgreSQL but a common workaround is to use views or set the PostgreSQL search_path in your session to access object outside the current schema.	
+TABLE	7	0	1.40	 4 check constraint(s).	Total number of rows: 236501. Top 10 of tables sorted by number of rows:. claim_detail has 150000 rows. claim has 50000 rows. fee_schedule_detail has 25000 rows. member has 10000 rows. provider has 1000 rows. fee_schedule has 500 rows. migration_audit has 1 rows. Top 10 of largest tables:. 
+TRIGGER	7	0	28.00	Total size of trigger code: 0 bytes.	trg_provider_bi: 3. trg_member_bi: 3. trg_fee_schedule_bi: 3. trg_fee_schedule_detail_bi: 3. trg_claim_bi: 3. trg_claim_detail_bi: 3. trg_migration_audit_bi: 3. 
+VIEW	2	0	2.00	Views are fully supported but can use specific functions.	
+-------------------------------------------------------------------------------
+Total	46	0	58.60	58.60 cost migration units means approximatively 1 person-day(s). The migration unit was set to 5 minute(s)
+
+-------------------------------------------------------------------------------
+Migration level : B-5
+-------------------------------------------------------------------------------
+
+Migration levels:
+    A - Migration that might be run automatically
+    B - Migration with code rewrite and a human-days cost up to 5 days
+    C - Migration with code rewrite and a human-days cost above 5 days
+Technical levels:
+    1 = trivial: no stored functions and no triggers
+    2 = easy: no stored functions but with triggers, no manual rewriting
+    3 = simple: stored functions and/or triggers, no manual rewriting
+    4 = manual: no stored functions but with triggers or views with code rewriting
+    5 = difficult: stored functions and/or triggers with code rewriting
+-------------------------------------------------------------------------------
+
+Details of cost assessment per function
+Function fn_claim_balance total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+-------------------------------------------------------------------------------
+
+Details of cost assessment per procedure
+Function pr_recalculate_claim total estimated cost: 3.2
+	TEST => 2
+	CONCAT => 2 (cost: 0.1)
+	SIZE => 1
+-------------------------------------------------------------------------------
+
+Details of cost assessment per package function
+Function pkg_claim_admin.upsert_audit total estimated cost: 3.2
+	TRUNC => 2 (cost: 0.1)
+	TEST => 2
+	SIZE => 1
+	MERGE => 1
+Function pkg_claim_admin.get_status_label total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Function pkg_claim_admin.recalculate_open_claims total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+-------------------------------------------------------------------------------
+
+Details of cost assessment per trigger
+Trigger trg_fee_schedule_detail_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_claim_detail_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_migration_audit_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_claim_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_member_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_provider_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+Trigger trg_fee_schedule_bi total estimated cost: 3
+	TEST => 2
+	SIZE => 1
+-------------------------------------------------------------------------------
